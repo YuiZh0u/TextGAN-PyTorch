@@ -4,7 +4,7 @@
 # @FileName     : run_leakgan.py
 # @Time         : Created at 2019-05-27
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import sys
@@ -44,9 +44,9 @@ inter_epoch = 10
 tips = 'LeakGAN experiments'
 
 # ===Oracle  or Real===
-if_real_data = [int(False), int(True), int(True)]
-dataset = ['oracle', 'image_coco', 'emnlp_news']
-vocab_size = [5000, 0, 0]
+if_real_data = [int(False), int(True), int(True), int(True)]
+dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets']
+vocab_size = [5000, 0, 0, 0]
 
 # ===Basic Param===
 data_shuffle = int(False)
