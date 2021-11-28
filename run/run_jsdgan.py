@@ -42,9 +42,9 @@ ADV_train_epoch = 500
 tips = 'JSDGAN experiments'
 
 # ===Oracle  or Real===
-if_real_data = [int(False), int(True), int(True)]
-dataset = ['oracle', 'image_coco', 'emnlp_news']
-vocab_size = [5000, 0, 0]
+if_real_data = [int(False), int(True), int(True), int(True)]
+dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets']
+vocab_size = [5000, 0, 0, 0]
 
 # ===Basic Param===
 data_shuffle = int(False)

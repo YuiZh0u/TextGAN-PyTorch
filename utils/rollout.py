@@ -11,6 +11,9 @@ import copy
 import torch
 import torch.nn.functional as F
 
+import config as cfg
+from utils.text_process import load_dict, write_tokens, tensor_to_tokens
+
 
 class ROLLOUT:
     def __init__(self, gen, gpu=True):
@@ -21,6 +24,7 @@ class ROLLOUT:
         self.step_size = gen.step_size if gen.name == 'leakgan' else 0
         self.goal_out_size = gen.goal_out_size if gen.name == 'leakgan' else 0
         self.gpu = gpu
+        self.word2idx_dict, self.idx2word_dict = load_dict(cfg.dataset)
 
     def rollout_mc_search(self, sentences, given_num):
         """
@@ -51,6 +55,13 @@ class ROLLOUT:
             inp = out.view(-1)
 
             out, hidden = self.gen.forward(inp, hidden, need_hidden=True)
+        
+        #print("rollout_mc_search samples: ", samples , end=", ")
+        #print("rollout_mc_search size: ", samples.size())
+        #tokens = tensor_to_tokens(samples, self.idx2word_dict)
+        #save_sample_path = cfg.save_samples_root + 'rollout_mc_search_samples.txt'
+        #write_tokens(save_sample_path, tokens)
+        # print(tokens)
 
         return samples
 
@@ -143,6 +154,9 @@ class ROLLOUT:
             for i in range(rollout_num):
                 for given_num in range(1, self.max_seq_len + 1):
                     samples = self.rollout_mc_search(sentences, given_num)
+                    tokens = tensor_to_tokens(samples, self.idx2word_dict)
+                    save_sample_path = cfg.save_samples_root + 'rollout_mc_search_samples_{:05d}.txt'.format(idx)
+                    write_tokens(save_sample_path, tokens)
                     out = dis.forward(samples)
                     out = F.softmax(out, dim=-1)
                     reward = out[:, current_k + 1]
@@ -150,7 +164,11 @@ class ROLLOUT:
                     idx += 1
 
         # rewards = torch.mean(rewards, dim=0)
+        print("pre-rewards: ", rewards, end=", ")
+        print("pre-rewards size: ", rewards.size())
         rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
+        print("rewards: ", rewards, end=", ")
+        print("rewards size: ", rewards.size())
         return rewards
 
     def get_reward_leakgan(self, sentences, rollout_num, dis, current_k):
@@ -201,6 +219,7 @@ class ROLLOUT:
 
         rewards = torch.Tensor(rewards).cuda()
         rewards = torch.sum(rewards, dim=0) / rollout_num
+        print("token reward: ", rewards, end=", ")
         return rewards
 
     def get_reward_csgan(self, target, rollout_num, csgan_clas):

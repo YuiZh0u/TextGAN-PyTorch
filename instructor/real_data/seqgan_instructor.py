@@ -61,7 +61,12 @@ class SeqGANInstructor(BasicInstructor):
             if self.sig.adv_sig:
                 self.adv_train_generator(cfg.ADV_g_step)  # Generator
                 self.train_discriminator(cfg.ADV_d_step, cfg.ADV_d_epoch, 'ADV')  # Discriminator
-
+                print("adv_epoch: ", adv_epoch)
+                print("cfg.adv_log_step: ", cfg.adv_log_step)
+    
+                #if cfg.if_save and not cfg.if_test:
+                #    self._save('ADV', adv_epoch)
+                
                 if adv_epoch % cfg.adv_log_step == 0 or adv_epoch == cfg.ADV_train_epoch - 1:
                     if cfg.if_save and not cfg.if_test:
                         self._save('ADV', adv_epoch)
@@ -103,10 +108,19 @@ class SeqGANInstructor(BasicInstructor):
         total_g_loss = 0
         for step in range(g_step):
             inp, target = GenDataIter.prepare(self.gen.sample(cfg.batch_size, cfg.batch_size), gpu=cfg.CUDA)
+            
+            print("seqgan_instructor inp: ", inp)
+            print("seqgan_instructor inp size: ", inp.size())
+            print("seqgan_instructor target: ", target)
+            print("seqgan_instructor target size: ", target.size())
 
             # ===Train===
             rewards = rollout_func.get_reward(target, cfg.rollout_num, self.dis)
+            print("seqgan_instructor rewards: ", rewards)
+            print("seqgan_instructor rewards size: ", rewards.size())
             adv_loss = self.gen.batchPGLoss(inp, target, rewards)
+            print("seqgan_instructor adv_loss: ", adv_loss)
+            print("seqgan_instructor adv_loss size: ", adv_loss.size())
             self.optimize(self.gen_adv_opt, adv_loss)
             total_g_loss += adv_loss.item()
 

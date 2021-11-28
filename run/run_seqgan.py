@@ -38,14 +38,16 @@ CUDA = int(True)
 oracle_pretrain = int(True)
 gen_pretrain = int(False)
 dis_pretrain = int(False)
-MLE_train_epoch = 120
-ADV_train_epoch = 200
+# MLE_train_epoch = 120
+MLE_train_epoch = 5
+# ADV_train_epoch = 200
+ADV_train_epoch = 3
 tips = 'SeqGAN experiments'
 
 # ===Oracle  or Real===
-if_real_data = [int(False), int(True), int(True)]
-dataset = ['oracle', 'image_coco', 'emnlp_news']
-vocab_size = [5000, 0, 0]
+if_real_data = [int(False), int(True), int(True), int(True)]
+dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets']
+vocab_size = [5000, 0, 0, 0]
 
 # ===Basic Param===
 data_shuffle = int(False)
@@ -69,7 +71,8 @@ gen_hidden_dim = 32
 # ===Discriminator===
 d_step = 5
 d_epoch = 3
-ADV_d_step = 4
+# ADV_d_step = 4
+ADV_d_step = 6
 ADV_d_epoch = 2
 dis_embed_dim = 64
 dis_hidden_dim = 64

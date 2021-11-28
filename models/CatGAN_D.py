@@ -11,6 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from utils.text_process import build_embedding_matrix
 from models.discriminator import CNNDiscriminator, CNNClassifier
 
 dis_filter_sizes = [2, 3, 4, 5]
@@ -73,4 +74,4 @@ class CatGAN_C(CNNClassifier):
                                        clas_num_filters, padding_idx, gpu, dropout)
 
         # Use Glove
-        # self.embeddings.from_pretrained(build_embedding_matrix(cfg.dataset))
+        self.embeddings.from_pretrained(build_embedding_matrix('covid_tweets'))

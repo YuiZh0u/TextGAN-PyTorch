@@ -70,6 +70,8 @@ class GenDataIter:
     @staticmethod
     def prepare(samples, gpu=False):
         """Add start_letter to samples as inp, target same as samples"""
+        print("GenDataIter prepare samples: ", samples)
+        print("GenDataIter prepare samples size: ", samples.size())
         inp = torch.zeros(samples.size()).long()
         target = samples
         inp[:, 0] = cfg.start_letter
@@ -77,6 +79,10 @@ class GenDataIter:
 
         if gpu:
             return inp.cuda(), target.cuda()
+        print("GenDataIter prepare inp: ", inp)
+        print("GenDataIter prepare inp size: ", inp.size())
+        print("GenDataIter prepare target: ", target)
+        print("GenDataIter prepare target size: ", target.size())
         return inp, target
 
     def load_data(self, filename):
@@ -124,4 +130,7 @@ class DisDataIter:
 
         if gpu:
             return inp.cuda(), target.cuda()
+        print("DisDataIter prepare inp: ", inp)
+        print("DisDataIter prepare inp size: ", inp.size())
+        print("DisDataIter prepare target size: ", target.size())
         return inp, target

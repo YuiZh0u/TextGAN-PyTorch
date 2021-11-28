@@ -332,9 +332,9 @@ def build_embedding_matrix(dataset):
         print('Loading Glove word vectors...')
         word2idx_dict, _ = load_dict(dataset)
         embedding_matrix = np.random.random((len(word2idx_dict) + 2, 300))  # 2 for padding token and start token
-        fname = '../glove.42B.300d.txt'  # Glove file
-        # fname = '../GoogleNews-vectors-negative300.bin' # Google Word2Vec file
-        word2vec_dict = load_word_vec(fname, word2idx_dict=word2idx_dict, type='glove')
+        #fname = '../glove.42B.300d.txt'  # Glove file
+        fname = '../corpusgood_sinrepeticiones.w2v' # Google Word2Vec file
+        word2vec_dict = load_word_vec(fname, word2idx_dict=word2idx_dict, type='word2vec')
         print('Building embedding matrix:', embed_filename)
         for word, i in word2idx_dict.items():
             if word in word2vec_dict:

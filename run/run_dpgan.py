@@ -27,7 +27,7 @@ else:
     print('Missing argument: job_id and gpu_id. Use default job_id: {}, gpu_id: {}'.format(job_id, gpu_id))
 
 # Executables
-executable = '/home/zhiwei/.virtualenvs/zhiwei/bin/python'  # specify your own python interpreter path here
+executable = 'python'  # specify your own python interpreter path here
 rootdir = '../'
 scriptname = 'main.py'
 
@@ -43,9 +43,9 @@ ADV_train_epoch = 200
 tips = 'DPGAN experiments'
 
 # ===Oracle  or Real===
-if_real_data = [int(False), int(True), int(True)]
-dataset = ['oracle', 'image_coco', 'emnlp_news']
-vocab_size = [5000, 0, 0]
+if_real_data = [int(False), int(True), int(True), int(True)]
+dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets']
+vocab_size = [5000, 0, 0, 0]
 
 # ===Basic Param===
 data_shuffle = int(False)
@@ -79,7 +79,8 @@ use_nll_oracle = int(True)
 use_nll_gen = int(True)
 use_nll_div = int(True)
 use_bleu = int(True)
-use_self_bleu = int(False)
+# use_self_bleu = int(False)
+use_self_bleu = int(True)
 use_ppl = int(False)
 
 args = [

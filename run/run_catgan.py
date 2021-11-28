@@ -34,21 +34,21 @@ scriptname = 'main.py'
 # CatGAN: Catgory text generation model
 # EvoGAN: General text generation model
 if_test = int(False)
-run_model = ['catgan', 'catgan', 'catgan', 'evogan', 'evogan', 'evogan']
+run_model = ['catgan', 'catgan', 'catgan', 'evogan', 'evogan', 'evogan', 'evogan']
 k_label = 2
 CUDA = int(True)
 ora_pretrain = int(True)
 gen_pretrain = int(False)
 dis_pretrain = int(False)
-MLE_train_epoch = 150
-clas_pre_epoch = 5
+MLE_train_epoch = 51
+clas_pre_epoch = 11
 ADV_train_epoch = 2000
 tips = '{} experiments'
 
 # ===Oracle or Real===
-if_real_data = [int(False), int(True), int(True), int(False), int(True), int(True)]
-dataset = ['oracle', 'mr15', 'amazon_app_book', 'oracle', 'image_coco', 'emnlp_news']
-vocab_size = [5000, 0, 0, 5000, 0, 0]
+if_real_data = [int(False), int(True), int(True), int(False), int(True), int(True), int(True)]
+dataset = ['oracle', 'mr15', 'amazon_app_book', 'oracle', 'image_coco', 'emnlp_news', 'covid_tweets']
+vocab_size = [5000, 0, 0, 5000, 0, 0, 0]
 
 # ===CatGAN Param===
 n_parent = 1
@@ -56,7 +56,7 @@ loss_type = 'ragan'
 mu_type = 'ragan rsgan'
 eval_type = 'Ra'
 temp_adpt = 'exp'
-temperature = [1, 100, 100, 1, 100, 100]
+temperature = [1, 100, 100, 1, 100, 100, 100]
 d_out_mean = int(True)
 lambda_fq = 1.0
 lambda_fd = 0.001
@@ -82,7 +82,7 @@ gen_embed_dim = 32
 gen_hidden_dim = 32
 mem_slots = 1
 num_heads = 2
-head_size = [512, 512, 512, 256, 256, 256]
+head_size = [512, 512, 512, 256, 256, 256, 256]
 
 # ===Discriminator===
 ADV_d_step = 3

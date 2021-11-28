@@ -20,12 +20,13 @@ title_dict = {
     'NLL_oracle': 'NLL_oracle',
     'NLL_gen': 'NLL_gen',
     'BLEU-3': 'BLEU-3',
+    'BLEU': 'BLEU',
 }
 
 color_list = ['#e74c3c', '#e67e22', '#f1c40f', '#8e44ad', '#2980b9', '#27ae60', '#16a085']
 
 
-def plt_data(data, step, title, c_id, savefig=False):
+def plt_data(data, step, title, c_id, savefig=True):
     x = [i for i in range(step)]
     plt.plot(x, data, color=color_list[c_id], label=title)
     if savefig:
@@ -37,16 +38,18 @@ def get_log_data(filename):
         all_lines = fin.read().strip().split('\n')
         data_dict = {'pre_loss': [], 'g_loss': [], 'mana_loss': [], 'work_loss': [],
                      'd_loss': [], 'train_acc': [], 'eval_acc': [], 'NLL_oracle': [],
-                     'NLL_gen': [], 'BLEU-3': []}
+                     'NLL_gen': [], 'BLEU-3': [], 'BLEU' :[]}
 
         for line in all_lines:
             items = line.split()
             try:
                 for key in data_dict.keys():
                     if key in items:
+                        #data_dict[key].append(float(items[items.index(key) + 2][:-1]))
                         data_dict[key].append(float(items[items.index(key) + 2][:-1]))
             except:
                 break
+        print(data_dict)
 
     return data_dict
 
@@ -54,12 +57,14 @@ def get_log_data(filename):
 if __name__ == '__main__':
     log_file_root = '../log/'
     # Custom your log files in lists, no more than len(color_list)
-    log_file_list = ['log_0604_2233', 'log_0605_0120', 'log_0531_1507']
-    legend_text = ['SeqGAN', 'LeakGAN', 'RelGAN']
+#     log_file_list = ['log_0604_2233', 'log_0605_0120', 'log_0531_1507']
+#     legend_text = ['SeqGAN', 'LeakGAN', 'RelGAN']
+    log_file_list = ['log_1015_1125_29']
+    legend_text = ['DPGAN']
 
     color_id = 0
-    data_name = 'NLL_oracle'
-    if_save = False
+    data_name = 'BLEU'
+    if_save = True
     # legend_text = log_file_list
 
     assert data_name in title_dict.keys(), 'Error data name'
@@ -67,8 +72,10 @@ if __name__ == '__main__':
     plt.title(data_name)
     all_data_list = []
     for idx, item in enumerate(log_file_list):
-        log_file = log_file_root + item + '.txt'
-
+       
+        log_file = item + '.txt'
+        #log_file = log_file_root + item + '.txt'
+        
         # save log file
         all_data = get_log_data(log_file)
         plt_data(all_data[title_dict[data_name]], len(all_data[title_dict[data_name]]),
