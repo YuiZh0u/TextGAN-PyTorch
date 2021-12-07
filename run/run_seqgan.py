@@ -39,9 +39,9 @@ oracle_pretrain = int(True)
 gen_pretrain = int(False)
 dis_pretrain = int(False)
 # MLE_train_epoch = 120
-MLE_train_epoch = 5
+MLE_train_epoch = 1
 # ADV_train_epoch = 200
-ADV_train_epoch = 3
+ADV_train_epoch = 1
 tips = 'SeqGAN experiments'
 
 # ===Oracle  or Real===
@@ -69,10 +69,9 @@ gen_embed_dim = 32
 gen_hidden_dim = 32
 
 # ===Discriminator===
-d_step = 5
-d_epoch = 3
-# ADV_d_step = 4
-ADV_d_step = 6
+d_step = 1
+d_epoch = 1
+ADV_d_step = 4
 ADV_d_epoch = 2
 dis_embed_dim = 64
 dis_hidden_dim = 64

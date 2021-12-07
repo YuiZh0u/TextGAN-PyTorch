@@ -1,0 +1,114 @@
+====================================================================================================
+> training arguments:
+>>> if_test: 0
+>>> run_model: seqgan
+>>> k_label: 2
+>>> dataset: covid_tweets
+>>> model_type: vanilla
+>>> loss_type: rsgan
+>>> mu_type: ragan
+>>> eval_type: Ra
+>>> d_type: Ra
+>>> if_real_data: 1
+>>> cuda: 1
+>>> device: 0
+>>> devices: 0
+>>> shuffle: 0
+>>> gen_init: normal
+>>> dis_init: uniform
+>>> n_parent: 1
+>>> eval_b_num: 8
+>>> lambda_fq: 1.0
+>>> lambda_fd: 0.0
+>>> d_out_mean: True
+>>> freeze_dis: False
+>>> freeze_clas: False
+>>> use_all_real_fake: False
+>>> use_population: False
+>>> samples_num: 10000
+>>> vocab_size: 29329
+>>> mle_epoch: 5
+>>> clas_pre_epoch: 10
+>>> adv_epoch: 3
+>>> inter_epoch: 15
+>>> batch_size: 64
+>>> max_seq_len: 66
+>>> start_letter: 1
+>>> padding_idx: 0
+>>> gen_lr: 0.01
+>>> gen_adv_lr: 0.0001
+>>> dis_lr: 0.0001
+>>> clip_norm: 5.0
+>>> pre_log_step: 10
+>>> adv_log_step: 1
+>>> train_data: dataset/covid_tweets.txt
+>>> test_data: dataset/testdata/covid_tweets_test.txt
+>>> temp_adpt: exp
+>>> evo_temp_step: 1
+>>> temperature: 1
+>>> ora_pretrain: 1
+>>> gen_pretrain: 0
+>>> dis_pretrain: 0
+>>> adv_g_step: 1
+>>> rollout_num: 16
+>>> gen_embed_dim: 32
+>>> gen_hidden_dim: 32
+>>> goal_size: 16
+>>> step_size: 4
+>>> mem_slots: 1
+>>> num_heads: 2
+>>> head_size: 256
+>>> d_step: 5
+>>> d_epoch: 3
+>>> adv_d_step: 4
+>>> adv_d_epoch: 2
+>>> dis_embed_dim: 64
+>>> dis_hidden_dim: 64
+>>> num_rep: 64
+>>> use_nll_oracle: 1
+>>> use_nll_gen: 1
+>>> use_nll_div: 1
+>>> use_bleu: 1
+>>> use_self_bleu: 1
+>>> use_clas_acc: True
+>>> use_ppl: 0
+>>> log_file: log/log_1123_1903_42.txt
+>>> save_root: save/20211123/covid_tweets/seqgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl66_temp1_lfd0.0_T1123_1903_42/
+>>> signal_file: run_signal.txt
+>>> tips: SeqGAN experiments
+====================================================================================================
+Starting Generator MLE Training...
+[MLE-GEN] epoch 0 : pre_loss = 1.7766, BLEU-[2, 3, 4, 5] = [0.431, 0.168, 0.086, 0.055], NLL_gen = 1.5353, NLL_div = 1.8248, Self-BLEU-[2, 3, 4] = [0.697, 0.368, 0.171], [PPL-F, PPL-R] = 0
+[MLE-GEN] epoch 4 : pre_loss = 1.4012, BLEU-[2, 3, 4, 5] = [0.485, 0.209, 0.103, 0.066], NLL_gen = 1.3786, NLL_div = 1.5357, Self-BLEU-[2, 3, 4] = [0.744, 0.416, 0.197], [PPL-F, PPL-R] = 0
+Starting Discriminator Training...
+[MLE-DIS] d_step 0: d_loss = 0.1790, train_acc = 0.9347,
+[MLE-DIS] d_step 1: d_loss = 0.0802, train_acc = 0.9754,
+[MLE-DIS] d_step 2: d_loss = 0.0398, train_acc = 0.9893,
+[MLE-DIS] d_step 3: d_loss = 0.0224, train_acc = 0.9946,
+[MLE-DIS] d_step 4: d_loss = 0.0142, train_acc = 0.9971,
+Starting Adversarial Training...
+Initial generator: BLEU-[2, 3, 4, 5] = [0.485, 0.205, 0.096, 0.061], NLL_gen = 1.3786, NLL_div = 1.5343, Self-BLEU-[2, 3, 4] = [0.751, 0.428, 0.21], [PPL-F, PPL-R] = 0
+-----
+ADV EPOCH 0
+-----
+[ADV-GEN]: g_loss = 4107.0020, BLEU-[2, 3, 4, 5] = [0.518, 0.23, 0.117, 0.075], NLL_gen = 1.3795, NLL_div = 1.3704, Self-BLEU-[2, 3, 4] = [0.76, 0.431, 0.208], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0318, train_acc = 0.9918,
+[ADV-DIS] d_step 1: d_loss = 0.0279, train_acc = 0.9928,
+[ADV-DIS] d_step 2: d_loss = 0.0212, train_acc = 0.9946,
+[ADV-DIS] d_step 3: d_loss = 0.0196, train_acc = 0.9953,
+-----
+ADV EPOCH 1
+-----
+[ADV-GEN]: g_loss = 1266.3994, BLEU-[2, 3, 4, 5] = [0.539, 0.243, 0.122, 0.078], NLL_gen = 1.3834, NLL_div = 1.2406, Self-BLEU-[2, 3, 4] = [0.769, 0.441, 0.21], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0168, train_acc = 0.9957,
+[ADV-DIS] d_step 1: d_loss = 0.0154, train_acc = 0.9961,
+[ADV-DIS] d_step 2: d_loss = 0.0131, train_acc = 0.9967,
+[ADV-DIS] d_step 3: d_loss = 0.0113, train_acc = 0.9971,
+-----
+ADV EPOCH 2
+-----
+[ADV-GEN]: g_loss = 778.2435, BLEU-[2, 3, 4, 5] = [0.546, 0.228, 0.113, 0.073], NLL_gen = 1.3886, NLL_div = 1.1392, Self-BLEU-[2, 3, 4] = [0.792, 0.492, 0.245], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0106, train_acc = 0.9973,
+[ADV-DIS] d_step 1: d_loss = 0.0085, train_acc = 0.9977,
+[ADV-DIS] d_step 2: d_loss = 0.0084, train_acc = 0.9981,
+[ADV-DIS] d_step 3: d_loss = 0.0068, train_acc = 0.9982,

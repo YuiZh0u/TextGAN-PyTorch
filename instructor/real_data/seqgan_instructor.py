@@ -16,6 +16,7 @@ from models.SeqGAN_D import SeqGAN_D
 from models.SeqGAN_G import SeqGAN_G
 from utils import rollout
 from utils.data_loader import GenDataIter, DisDataIter
+from utils.word_changer import similar_token
 
 
 class SeqGANInstructor(BasicInstructor):
@@ -108,23 +109,32 @@ class SeqGANInstructor(BasicInstructor):
         total_g_loss = 0
         for step in range(g_step):
             inp, target = GenDataIter.prepare(self.gen.sample(cfg.batch_size, cfg.batch_size), gpu=cfg.CUDA)
+            print("Algorithm Start: search and replacement by the most similar")
+            inp_changed, mutated_samples = similar_token(target)
             
-            print("seqgan_instructor inp: ", inp)
-            print("seqgan_instructor inp size: ", inp.size())
+            print("seqgan_instructor inp original: ", inp)
+            print("seqgan_instructor inp changed: ", inp_changed)
+            #print("seqgan_instructor inp size: ", inp.size())
             print("seqgan_instructor target: ", target)
-            print("seqgan_instructor target size: ", target.size())
+            #print("seqgan_instructor target size: ", target.size())
+            print("seqgan_instructor mutated_samples: ", mutated_samples)
 
             # ===Train===
-            rewards = rollout_func.get_reward(target, cfg.rollout_num, self.dis)
-            print("seqgan_instructor rewards: ", rewards)
-            print("seqgan_instructor rewards size: ", rewards.size())
-            adv_loss = self.gen.batchPGLoss(inp, target, rewards)
-            print("seqgan_instructor adv_loss: ", adv_loss)
-            print("seqgan_instructor adv_loss size: ", adv_loss.size())
+            rewards_original = rollout_func.get_reward(target, cfg.rollout_num, self.dis)
+            rewards_changed = rollout_func.get_reward(mutated_samples, cfg.rollout_num, self.dis)
+            print("seqgan_instructor rewards original: ", rewards_original)
+            print("seqgan_instructor rewards changed: ", rewards_changed)
+            #print("seqgan_instructor rewards size: ", rewards.size())
+            adv_loss_original = self.gen.batchPGLoss(inp, target, rewards_original)
+            print("seqgan_instructor adv_loss original: ", adv_loss_original)
+            adv_loss = self.gen.batchPGLoss(inp_changed, mutated_samples, rewards_changed)
+            print("seqgan_instructor adv_loss changed: ", adv_loss)
+            #print("seqgan_instructor adv_loss size: ", adv_loss.size())
             self.optimize(self.gen_adv_opt, adv_loss)
             total_g_loss += adv_loss.item()
 
         # ===Test===
+        print("Calculando metricas del entrenamiendo adversario")
         self.log.info('[ADV-GEN]: g_loss = %.4f, %s' % (total_g_loss, self.cal_metrics(fmt_str=True)))
 
     def train_discriminator(self, d_step, d_epoch, phase='MLE'):

@@ -21,6 +21,7 @@ from utils.data_loader import GenDataIter
 from utils.helpers import Signal, create_logger, get_fixed_temperature
 from utils.text_process import load_dict, write_tokens, tensor_to_tokens
 
+from datetime import datetime
 
 class BasicInstructor:
     def __init__(self, opt):
@@ -210,7 +211,14 @@ class BasicInstructor:
             gen_data = GenDataIter(eval_samples)
             gen_tokens = tensor_to_tokens(eval_samples, self.idx2word_dict)
             gen_tokens_s = tensor_to_tokens(self.gen.sample(200, 200), self.idx2word_dict)
-
+            
+            print("cal_metrics gen_tokens", eval_samples)
+            print("cal_metrics gen_tokens size", eval_samples.size())
+            sample_unique_name = datetime.now().strftime("%Y%m%d_%H%M")
+            print(datetime.now().strftime("%Y%m%d_%H%M%S"))
+            save_sample_path = cfg.save_samples_root + 'gen_tokens_samples{}.txt'.format(sample_unique_name) #Para evitar que se sobre-escriba el sample en diferentes epochs
+            write_tokens(save_sample_path, gen_tokens)
+            
             # Reset metrics
             self.bleu.reset(test_text=gen_tokens, real_text=self.test_data.tokens)
             self.nll_gen.reset(self.gen, self.train_data.loader)

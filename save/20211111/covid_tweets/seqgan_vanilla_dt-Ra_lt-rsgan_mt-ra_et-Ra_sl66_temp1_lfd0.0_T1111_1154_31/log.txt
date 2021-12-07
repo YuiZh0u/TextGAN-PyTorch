@@ -1,0 +1,170 @@
+====================================================================================================
+> training arguments:
+>>> if_test: 0
+>>> run_model: seqgan
+>>> k_label: 2
+>>> dataset: covid_tweets
+>>> model_type: vanilla
+>>> loss_type: rsgan
+>>> mu_type: ragan
+>>> eval_type: Ra
+>>> d_type: Ra
+>>> if_real_data: 1
+>>> cuda: 1
+>>> device: 0
+>>> devices: 0
+>>> shuffle: 0
+>>> gen_init: normal
+>>> dis_init: uniform
+>>> n_parent: 1
+>>> eval_b_num: 8
+>>> lambda_fq: 1.0
+>>> lambda_fd: 0.0
+>>> d_out_mean: True
+>>> freeze_dis: False
+>>> freeze_clas: False
+>>> use_all_real_fake: False
+>>> use_population: False
+>>> samples_num: 10000
+>>> vocab_size: 29329
+>>> mle_epoch: 11
+>>> clas_pre_epoch: 10
+>>> adv_epoch: 10
+>>> inter_epoch: 15
+>>> batch_size: 64
+>>> max_seq_len: 66
+>>> start_letter: 1
+>>> padding_idx: 0
+>>> gen_lr: 0.01
+>>> gen_adv_lr: 0.0001
+>>> dis_lr: 0.0001
+>>> clip_norm: 5.0
+>>> pre_log_step: 10
+>>> adv_log_step: 1
+>>> train_data: dataset/covid_tweets.txt
+>>> test_data: dataset/testdata/covid_tweets_test.txt
+>>> temp_adpt: exp
+>>> evo_temp_step: 1
+>>> temperature: 1
+>>> ora_pretrain: 1
+>>> gen_pretrain: 0
+>>> dis_pretrain: 0
+>>> adv_g_step: 1
+>>> rollout_num: 16
+>>> gen_embed_dim: 32
+>>> gen_hidden_dim: 32
+>>> goal_size: 16
+>>> step_size: 4
+>>> mem_slots: 1
+>>> num_heads: 2
+>>> head_size: 256
+>>> d_step: 5
+>>> d_epoch: 3
+>>> adv_d_step: 4
+>>> adv_d_epoch: 2
+>>> dis_embed_dim: 64
+>>> dis_hidden_dim: 64
+>>> num_rep: 64
+>>> use_nll_oracle: 1
+>>> use_nll_gen: 1
+>>> use_nll_div: 1
+>>> use_bleu: 1
+>>> use_self_bleu: 1
+>>> use_clas_acc: True
+>>> use_ppl: 0
+>>> log_file: log/log_1111_1154_31.txt
+>>> save_root: save/20211111/covid_tweets/seqgan_vanilla_dt-Ra_lt-rsgan_mt-ra_et-Ra_sl66_temp1_lfd0.0_T1111_1154_31/
+>>> signal_file: run_signal.txt
+>>> tips: SeqGAN experiments
+====================================================================================================
+Starting Generator MLE Training...
+[MLE-GEN] epoch 0 : pre_loss = 1.7822, BLEU-[2, 3, 4, 5] = [0.432, 0.17, 0.086, 0.057], NLL_gen = 1.5387, NLL_div = 1.8722, Self-BLEU-[2, 3, 4] = [0.688, 0.334, 0.155], [PPL-F, PPL-R] = 0
+[MLE-GEN] epoch 10 : pre_loss = 1.3555, BLEU-[2, 3, 4, 5] = [0.491, 0.213, 0.106, 0.067], NLL_gen = 1.3451, NLL_div = 1.4558, Self-BLEU-[2, 3, 4] = [0.734, 0.407, 0.197], [PPL-F, PPL-R] = 0
+Starting Discriminator Training...
+[MLE-DIS] d_step 0: d_loss = 0.1735, train_acc = 0.9367,
+[MLE-DIS] d_step 1: d_loss = 0.0795, train_acc = 0.9759,
+[MLE-DIS] d_step 2: d_loss = 0.0426, train_acc = 0.9880,
+[MLE-DIS] d_step 3: d_loss = 0.0262, train_acc = 0.9931,
+[MLE-DIS] d_step 4: d_loss = 0.0177, train_acc = 0.9960,
+Starting Adversarial Training...
+Initial generator: BLEU-[2, 3, 4, 5] = [0.496, 0.216, 0.105, 0.064], NLL_gen = 1.3451, NLL_div = 1.4304, Self-BLEU-[2, 3, 4] = [0.74, 0.406, 0.192], [PPL-F, PPL-R] = 0
+-----
+ADV EPOCH 0
+-----
+[ADV-GEN]: g_loss = 1946.9987, BLEU-[2, 3, 4, 5] = [0.499, 0.21, 0.102, 0.064], NLL_gen = 1.3466, NLL_div = 1.4758, Self-BLEU-[2, 3, 4] = [0.773, 0.454, 0.232], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0309, train_acc = 0.9920,
+[ADV-DIS] d_step 1: d_loss = 0.0249, train_acc = 0.9937,
+[ADV-DIS] d_step 2: d_loss = 0.0210, train_acc = 0.9947,
+[ADV-DIS] d_step 3: d_loss = 0.0196, train_acc = 0.9950,
+-----
+ADV EPOCH 1
+-----
+[ADV-GEN]: g_loss = 2430.2686, BLEU-[2, 3, 4, 5] = [0.504, 0.206, 0.101, 0.063], NLL_gen = 1.3496, NLL_div = 1.5201, Self-BLEU-[2, 3, 4] = [0.759, 0.434, 0.208], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0142, train_acc = 0.9966,
+[ADV-DIS] d_step 1: d_loss = 0.0135, train_acc = 0.9966,
+[ADV-DIS] d_step 2: d_loss = 0.0116, train_acc = 0.9971,
+[ADV-DIS] d_step 3: d_loss = 0.0099, train_acc = 0.9976,
+-----
+ADV EPOCH 2
+-----
+[ADV-GEN]: g_loss = 1223.5182, BLEU-[2, 3, 4, 5] = [0.522, 0.208, 0.098, 0.061], NLL_gen = 1.3527, NLL_div = 1.5298, Self-BLEU-[2, 3, 4] = [0.762, 0.458, 0.23], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0094, train_acc = 0.9976,
+[ADV-DIS] d_step 1: d_loss = 0.0087, train_acc = 0.9979,
+[ADV-DIS] d_step 2: d_loss = 0.0092, train_acc = 0.9976,
+[ADV-DIS] d_step 3: d_loss = 0.0082, train_acc = 0.9979,
+-----
+ADV EPOCH 3
+-----
+[ADV-GEN]: g_loss = 1247.6121, BLEU-[2, 3, 4, 5] = [0.516, 0.236, 0.111, 0.066], NLL_gen = 1.3559, NLL_div = 1.5442, Self-BLEU-[2, 3, 4] = [0.768, 0.461, 0.229], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0071, train_acc = 0.9981,
+[ADV-DIS] d_step 1: d_loss = 0.0065, train_acc = 0.9985,
+[ADV-DIS] d_step 2: d_loss = 0.0074, train_acc = 0.9981,
+[ADV-DIS] d_step 3: d_loss = 0.0064, train_acc = 0.9984,
+-----
+ADV EPOCH 4
+-----
+[ADV-GEN]: g_loss = 283.1678, BLEU-[2, 3, 4, 5] = [0.511, 0.208, 0.096, 0.06], NLL_gen = 1.3594, NLL_div = 1.5526, Self-BLEU-[2, 3, 4] = [0.782, 0.475, 0.237], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0067, train_acc = 0.9981,
+[ADV-DIS] d_step 1: d_loss = 0.0061, train_acc = 0.9985,
+[ADV-DIS] d_step 2: d_loss = 0.0051, train_acc = 0.9986,
+[ADV-DIS] d_step 3: d_loss = 0.0057, train_acc = 0.9985,
+-----
+ADV EPOCH 5
+-----
+[ADV-GEN]: g_loss = 621.3287, BLEU-[2, 3, 4, 5] = [0.512, 0.209, 0.094, 0.058], NLL_gen = 1.3625, NLL_div = 1.5178, Self-BLEU-[2, 3, 4] = [0.77, 0.456, 0.215], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0052, train_acc = 0.9986,
+[ADV-DIS] d_step 1: d_loss = 0.0050, train_acc = 0.9986,
+[ADV-DIS] d_step 2: d_loss = 0.0058, train_acc = 0.9985,
+[ADV-DIS] d_step 3: d_loss = 0.0055, train_acc = 0.9985,
+-----
+ADV EPOCH 6
+-----
+[ADV-GEN]: g_loss = 1339.7754, BLEU-[2, 3, 4, 5] = [0.523, 0.223, 0.103, 0.066], NLL_gen = 1.3658, NLL_div = 1.4818, Self-BLEU-[2, 3, 4] = [0.776, 0.475, 0.231], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0056, train_acc = 0.9986,
+[ADV-DIS] d_step 1: d_loss = 0.0048, train_acc = 0.9987,
+[ADV-DIS] d_step 2: d_loss = 0.0046, train_acc = 0.9988,
+[ADV-DIS] d_step 3: d_loss = 0.0037, train_acc = 0.9991,
+-----
+ADV EPOCH 7
+-----
+[ADV-GEN]: g_loss = 337.4095, BLEU-[2, 3, 4, 5] = [0.534, 0.229, 0.111, 0.067], NLL_gen = 1.3693, NLL_div = 1.4599, Self-BLEU-[2, 3, 4] = [0.788, 0.485, 0.243], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0043, train_acc = 0.9987,
+[ADV-DIS] d_step 1: d_loss = 0.0041, train_acc = 0.9989,
+[ADV-DIS] d_step 2: d_loss = 0.0031, train_acc = 0.9991,
+[ADV-DIS] d_step 3: d_loss = 0.0040, train_acc = 0.9988,
+-----
+ADV EPOCH 8
+-----
+[ADV-GEN]: g_loss = 502.1564, BLEU-[2, 3, 4, 5] = [0.514, 0.228, 0.105, 0.066], NLL_gen = 1.3728, NLL_div = 1.4146, Self-BLEU-[2, 3, 4] = [0.785, 0.491, 0.245], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0033, train_acc = 0.9992,
+[ADV-DIS] d_step 1: d_loss = 0.0037, train_acc = 0.9990,
+[ADV-DIS] d_step 2: d_loss = 0.0031, train_acc = 0.9993,
+[ADV-DIS] d_step 3: d_loss = 0.0036, train_acc = 0.9990,
+-----
+ADV EPOCH 9
+-----
+[ADV-GEN]: g_loss = 186.3180, BLEU-[2, 3, 4, 5] = [0.519, 0.221, 0.107, 0.067], NLL_gen = 1.3763, NLL_div = 1.3938, Self-BLEU-[2, 3, 4] = [0.761, 0.461, 0.223], [PPL-F, PPL-R] = 0
+[ADV-DIS] d_step 0: d_loss = 0.0038, train_acc = 0.9990,
+[ADV-DIS] d_step 1: d_loss = 0.0027, train_acc = 0.9992,
+[ADV-DIS] d_step 2: d_loss = 0.0033, train_acc = 0.9991,
+[ADV-DIS] d_step 3: d_loss = 0.0031, train_acc = 0.9992,
