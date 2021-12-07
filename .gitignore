@@ -2,7 +2,7 @@
 log/
 # dataset/
 pretrain/
-# save/
+save/
 savefig/
 .idea/
 
