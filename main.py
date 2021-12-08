@@ -105,6 +105,9 @@ def program_config(parser):
     parser.add_argument('--signal_file', default=cfg.signal_file, type=str)
     parser.add_argument('--tips', default=cfg.tips, type=str)
 
+    # Other
+    parser.add_argument('--mutation_rate', default=cfg.mutation_rate, type=float)
+
     return parser
 
 

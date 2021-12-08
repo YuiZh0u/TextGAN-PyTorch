@@ -215,7 +215,7 @@ class BasicInstructor:
             print("cal_metrics gen_tokens", eval_samples)
             print("cal_metrics gen_tokens size", eval_samples.size())
             sample_unique_name = datetime.now().strftime("%Y%m%d_%H%M")
-            print(datetime.now().strftime("%Y%m%d_%H%M%S"))
+            print("Metrica calculada a las: ", datetime.now().strftime("%Y%m%d_%H%M%S"))
             save_sample_path = cfg.save_samples_root + 'gen_tokens_samples{}.txt'.format(sample_unique_name) #Para evitar que se sobre-escriba el sample en diferentes epochs
             write_tokens(save_sample_path, gen_tokens)
             

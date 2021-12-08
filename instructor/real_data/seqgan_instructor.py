@@ -134,7 +134,7 @@ class SeqGANInstructor(BasicInstructor):
             total_g_loss += adv_loss.item()
 
         # ===Test===
-        print("Calculando metricas del entrenamiendo adversario")
+        print("Calculando las metricas del entrenamiendo adversario")
         self.log.info('[ADV-GEN]: g_loss = %.4f, %s' % (total_g_loss, self.cal_metrics(fmt_str=True)))
 
     def train_discriminator(self, d_step, d_epoch, phase='MLE'):

@@ -114,6 +114,10 @@ dis_embed_dim = 64
 dis_hidden_dim = 64
 num_rep = 64  # RelGAN
 
+# ===Other===
+
+mutation_rate = 0
+
 # ===log===
 log_time_str = strftime("%m%d_%H%M_%S", localtime())
 log_filename = strftime("log/log_%s" % log_time_str)
@@ -198,7 +202,7 @@ def init_param(opt):
         pretrained_clas_path, n_parent, mu_type, eval_type, d_type, eval_b_num, lambda_fd, d_out_mean, \
         lambda_fq, freeze_dis, freeze_clas, use_all_real_fake, use_population, gen_init, dis_init, \
         multi_oracle_samples_path, k_label, cat_train_data, cat_test_data, evo_temp_step, devices, \
-        use_nll_oracle, use_nll_gen, use_nll_div, use_bleu, use_self_bleu, use_clas_acc, use_ppl
+        use_nll_oracle, use_nll_gen, use_nll_div, use_bleu, use_self_bleu, use_clas_acc, use_ppl, mutation_rate
 
     if_test = True if opt.if_test == 1 else False
     run_model = opt.run_model
@@ -279,6 +283,8 @@ def init_param(opt):
     log_filename = opt.log_file
     signal_file = opt.signal_file
     tips = opt.tips
+
+    mutation_rate = opt.mutation_rate
 
     # CUDA device
     if multi_gpu:

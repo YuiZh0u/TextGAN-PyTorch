@@ -39,9 +39,9 @@ oracle_pretrain = int(True)
 gen_pretrain = int(False)
 dis_pretrain = int(False)
 # MLE_train_epoch = 120
-MLE_train_epoch = 1
+MLE_train_epoch = 81
 # ADV_train_epoch = 200
-ADV_train_epoch = 1
+ADV_train_epoch = 101
 tips = 'SeqGAN experiments'
 
 # ===Oracle  or Real===
@@ -69,8 +69,8 @@ gen_embed_dim = 32
 gen_hidden_dim = 32
 
 # ===Discriminator===
-d_step = 1
-d_epoch = 1
+d_step = 5 #Original es 5
+d_epoch = 3 #Original es 3
 ADV_d_step = 4
 ADV_d_epoch = 2
 dis_embed_dim = 64
@@ -83,6 +83,9 @@ use_nll_div = int(True)
 use_bleu = int(True)
 use_self_bleu = int(True)
 use_ppl = int(False)
+
+# ===Other===
+mutation_rate = 0.3
 
 args = [
     # Program
@@ -136,6 +139,9 @@ args = [
     '--use_bleu', use_bleu,
     '--use_self_bleu', use_self_bleu,
     '--use_ppl', use_ppl,
+
+    #Other
+    '--mutation_rate', mutation_rate
 ]
 
 args = list(map(str, args))
