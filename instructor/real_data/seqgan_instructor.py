@@ -109,9 +109,9 @@ class SeqGANInstructor(BasicInstructor):
         total_g_loss = 0
         for step in range(g_step):
             inp, target = GenDataIter.prepare(self.gen.sample(cfg.batch_size, cfg.batch_size), gpu=cfg.CUDA)
-            print("Algorithm Start: search and replacement by the most similar")
+            # print("Algorithm Start: search and replacement by the most similar")
             inp_changed, mutated_samples = similar_token(target)
-            
+
             print("seqgan_instructor inp original: ", inp)
             print("seqgan_instructor inp changed: ", inp_changed)
             #print("seqgan_instructor inp size: ", inp.size())

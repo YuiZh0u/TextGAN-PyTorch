@@ -154,10 +154,10 @@ class ROLLOUT:
             for i in range(rollout_num):
                 for given_num in range(1, self.max_seq_len + 1):
                     samples = self.rollout_mc_search(sentences, given_num)
-                    if(idx == (rollout_num * self.max_seq_len - 1)):
-                        tokens = tensor_to_tokens(samples, self.idx2word_dict)
-                        save_sample_path = cfg.save_samples_root + 'rollout_mc_search_samples_{:05d}.txt'.format(idx)
-                        write_tokens(save_sample_path, tokens)
+                    # if(idx == (rollout_num * self.max_seq_len - 1)):
+                        # tokens = tensor_to_tokens(samples, self.idx2word_dict)
+                        # save_sample_path = cfg.save_samples_root + 'rollout_mc_search_samples_{:05d}.txt'.format(idx)
+                        # write_tokens(save_sample_path, tokens)
                     out = dis.forward(samples)
                     out = F.softmax(out, dim=-1)
                     reward = out[:, current_k + 1]

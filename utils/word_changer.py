@@ -7,27 +7,34 @@ from math import ceil
 
 def similar_token(samples):
 
+    sample_unique_name = datetime.now().strftime("%Y%m%d_%H%M")
     word2idx_dict, idx2word_dict = load_dict(cfg.dataset)
-    model = w2v.Word2Vec.load('/home/jfrez/AI2/TextGAN-PyTorch/corpusgood_sinrepeticiones.w2v')
+
+    print('Algorithm Start: search and replacement by the most similar | {}'.format(sample_unique_name))
 
     original_samples = samples
-    sample_unique_name = datetime.now().strftime("%Y%m%d_%H%M")
     save_path_og = cfg.save_samples_root + 'samples_original_{}.txt'.format(sample_unique_name)
     write_tokens(save_path_og, tensor_to_tokens(original_samples, idx2word_dict))
 
+    model = w2v.Word2Vec.load('/home/jfrez/AI2/TextGAN-PyTorch/corpusgood_sinrepeticiones.w2v')
+
     for i, sample in enumerate(samples):
         words_to_mutate = ceil(float(cfg.mutation_rate) * len(torch.nonzero(sample)))
-        print('{}. Mutation rate: {}, Non zero: {}, Words to mutate: {}'.format(i+1, cfg.mutation_rate, len(torch.nonzero(sample)), words_to_mutate))
+        print('  {}. Mutation rate: {} | Non zero: {} | Words to mutate: {}'.format(i+1, cfg.mutation_rate, len(torch.nonzero(sample)), words_to_mutate))
         for j in range (words_to_mutate): # Modifica los tokens en secuencia
             associated_token = sample[j].item()
             associated_word = idx2word_dict[str(associated_token)]
             try:
-                most_similar = model.wv.most_similar(associated_word)[0][0]
-                most_similar_token = word2idx_dict[str(most_similar)]
-                print('    Original token:word = {}:{} | Similar word:token = {}:{}'.format(associated_token, associated_word, most_similar, most_similar_token))
-                sample[j] = int(most_similar_token)
+                most_similar_raw = model.wv.most_similar(associated_word, topn=1)
+                most_similar_word = most_similar_raw[0][0]
+                most_similar_pct = most_similar_raw[0][1]
+                print('     Original token:word = {}:{} | Similar word = {} | % Similarity = {}'.format(associated_token, associated_word, most_similar_word, most_similar_pct))
+                if most_similar_pct >= 0.9:
+                    most_similar_token = word2idx_dict[str(most_similar_word)]
+                    sample[j] = int(most_similar_token)
+                    print('     Token mutado')
             except:
-                print('No existe una palabra similar a {} en el vocabulario'.format(associated_word))
+                print('     No existe una palabra similar a {} en el vocabulario'.format(associated_word))
                 continue
 
     mutated_samples = samples

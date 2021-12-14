@@ -39,7 +39,7 @@ oracle_pretrain = int(True)
 gen_pretrain = int(False)
 dis_pretrain = int(False)
 # MLE_train_epoch = 120
-MLE_train_epoch = 81
+MLE_train_epoch = 120
 # ADV_train_epoch = 200
 ADV_train_epoch = 101
 tips = 'SeqGAN experiments'
@@ -85,7 +85,7 @@ use_self_bleu = int(True)
 use_ppl = int(False)
 
 # ===Other===
-mutation_rate = 0.3
+mutation_rate = 0.01
 
 args = [
     # Program
