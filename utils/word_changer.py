@@ -12,10 +12,6 @@ def similar_token(samples):
 
     print('Algorithm Start: search and replacement by the most similar | {}'.format(sample_unique_name))
 
-    original_samples = samples
-    save_path_og = cfg.save_samples_root + 'samples_original_{}.txt'.format(sample_unique_name)
-    write_tokens(save_path_og, tensor_to_tokens(original_samples, idx2word_dict))
-
     model = w2v.Word2Vec.load('/home/jfrez/AI2/TextGAN-PyTorch/corpusgood_sinrepeticiones.w2v')
 
     for i, sample in enumerate(samples):
@@ -28,19 +24,16 @@ def similar_token(samples):
                 most_similar_raw = model.wv.most_similar(associated_word, topn=1)
                 most_similar_word = most_similar_raw[0][0]
                 most_similar_pct = most_similar_raw[0][1]
-                print('     Original token:word = {}:{} | Similar word = {} | % Similarity = {}'.format(associated_token, associated_word, most_similar_word, most_similar_pct))
-                if most_similar_pct >= 0.9:
+                print('      Original token:word = {}:{} | Similar word = {} | % Similarity = {}'.format(associated_token, associated_word, most_similar_word, most_similar_pct))
+                if most_similar_pct >= 0.8:
                     most_similar_token = word2idx_dict[str(most_similar_word)]
                     sample[j] = int(most_similar_token)
-                    print('     Token mutado')
+                    print('      Token mutado')
             except:
-                print('     No existe una palabra similar a {} en el vocabulario'.format(associated_word))
+                print('      No existe una palabra similar a {} en el vocabulario'.format(associated_word))
                 continue
 
     mutated_samples = samples
-    save_path_new = cfg.save_samples_root + 'samples_similar_{}.txt'.format(sample_unique_name)
-    write_tokens(save_path_new, tensor_to_tokens(mutated_samples, idx2word_dict))
-
     inp_changed = torch.zeros(samples.size()).long()
     inp_changed[:, 0] = cfg.start_letter
     inp_changed[:, 1:] = mutated_samples[:, :cfg.max_seq_len - 1]

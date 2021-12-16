@@ -60,13 +60,6 @@ class BLEU(Metrics):
         len_ref = len(reference)
         reference = reference[:int(self.portion * len_ref)]
         self.reference = reference
-        
-        print("len_ref: {}, portion: {}".format(len_ref, self.portion))
-        sample_unique_name = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_path = cfg.save_samples_root + 'reference_{}.txt'.format(sample_unique_name)
-        with open(save_path, 'w') as reference_parse:
-              reference_parse.write(str(reference))
-        
         return reference
 
     def get_bleu(self, given_gram=None):
