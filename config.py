@@ -17,6 +17,7 @@ import torch
 if_test = False
 CUDA = True
 multi_gpu = False
+# multi_gpu = True #Descomentar en caso de querer ejecutar en otra GPU
 if_save = True
 data_shuffle = False  # False
 oracle_pretrain = True  # True
@@ -117,6 +118,7 @@ num_rep = 64  # RelGAN
 # ===Other===
 
 mutation_rate = 0
+similar_pct = 0
 
 # ===log===
 log_time_str = strftime("%m%d_%H%M_%S", localtime())
@@ -147,6 +149,7 @@ else:
 
 if multi_gpu:
     devices = '0,1'
+#     devices = '1' #Descomentar en caso de querer ejecutar en otra GPU de id 1
     devices = list(map(int, devices.split(',')))
     device = devices[0]
     torch.cuda.set_device(device)
@@ -202,7 +205,8 @@ def init_param(opt):
         pretrained_clas_path, n_parent, mu_type, eval_type, d_type, eval_b_num, lambda_fd, d_out_mean, \
         lambda_fq, freeze_dis, freeze_clas, use_all_real_fake, use_population, gen_init, dis_init, \
         multi_oracle_samples_path, k_label, cat_train_data, cat_test_data, evo_temp_step, devices, \
-        use_nll_oracle, use_nll_gen, use_nll_div, use_bleu, use_self_bleu, use_clas_acc, use_ppl, mutation_rate
+        use_nll_oracle, use_nll_gen, use_nll_div, use_bleu, use_self_bleu, use_clas_acc, use_ppl, \
+        mutation_rate, similar_pct
 
     if_test = True if opt.if_test == 1 else False
     run_model = opt.run_model
@@ -285,6 +289,7 @@ def init_param(opt):
     tips = opt.tips
 
     mutation_rate = opt.mutation_rate
+    similar_pct = opt.similar_pct
 
     # CUDA device
     if multi_gpu:

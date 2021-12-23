@@ -41,13 +41,13 @@ dis_pretrain = int(False)
 # MLE_train_epoch = 120
 MLE_train_epoch = 120
 # ADV_train_epoch = 200
-ADV_train_epoch = 101
+ADV_train_epoch = 71
 tips = 'SeqGAN experiments'
 
 # ===Oracle  or Real===
-if_real_data = [int(False), int(True), int(True), int(True)]
-dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets']
-vocab_size = [5000, 0, 0, 0]
+if_real_data = [int(False), int(True), int(True), int(True), int(True)]
+dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets', 'hurricane_tweets']
+vocab_size = [5000, 0, 0, 0, 0]
 
 # ===Basic Param===
 data_shuffle = int(False)
@@ -85,7 +85,8 @@ use_self_bleu = int(True)
 use_ppl = int(False)
 
 # ===Other===
-mutation_rate = 0.01
+mutation_rate = 0.3
+similar_pct = 0
 
 args = [
     # Program

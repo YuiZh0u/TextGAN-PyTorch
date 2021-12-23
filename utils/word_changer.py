@@ -12,7 +12,7 @@ def similar_token(samples):
 
     print('Algorithm Start: search and replacement by the most similar | {}'.format(sample_unique_name))
 
-    model = w2v.Word2Vec.load('/home/jfrez/AI2/TextGAN-PyTorch/corpusgood_sinrepeticiones.w2v')
+    model = w2v.Word2Vec.load('/home/jfrez/AI2/TextGAN-PyTorch/huracanes_sinrepeticiones.w2v')
 
     for i, sample in enumerate(samples):
         words_to_mutate = ceil(float(cfg.mutation_rate) * len(torch.nonzero(sample)))
@@ -25,7 +25,7 @@ def similar_token(samples):
                 most_similar_word = most_similar_raw[0][0]
                 most_similar_pct = most_similar_raw[0][1]
                 print('      Original token:word = {}:{} | Similar word = {} | % Similarity = {}'.format(associated_token, associated_word, most_similar_word, most_similar_pct))
-                if most_similar_pct >= 0.8:
+                if most_similar_pct >= float(cfg.similar_pct):
                     most_similar_token = word2idx_dict[str(most_similar_word)]
                     sample[j] = int(most_similar_token)
                     print('      Token mutado')

@@ -107,6 +107,7 @@ def program_config(parser):
 
     # Other
     parser.add_argument('--mutation_rate', default=cfg.mutation_rate, type=float)
+    parser.add_argument('--similar_pct', default=cfg.similar_pct, type=float)
 
     return parser
 
