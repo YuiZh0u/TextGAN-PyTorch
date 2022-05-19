@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*- <<< vanilla (exp6 ) | exp2 >>>
 # @Author       : William
 # @Project      : TextGAN-william
 # @FileName     : run_seqgan.py
@@ -86,7 +86,7 @@ use_ppl = int(False)
 
 # ===Other===
 mutation_rate = 0.3
-similar_pct = 0
+similar_pct = 0.8
 
 args = [
     # Program
@@ -142,7 +142,8 @@ args = [
     '--use_ppl', use_ppl,
 
     #Other
-    '--mutation_rate', mutation_rate
+    '--mutation_rate', mutation_rate,
+    '--similar_pct', similar_pct
 ]
 
 args = list(map(str, args))
