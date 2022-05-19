@@ -64,12 +64,12 @@ class LSTMGenerator(nn.Module):
         Samples the network and returns num_samples samples of length max_seq_len.
         :return samples: num_samples * max_seq_length (a sampled sequence in each row)
         """
-        print("generator.py sample: (num_samples)", num_samples)
-        print("generator.py sample: (batch_size)", batch_size)
+        # print("generator.py sample: (num_samples)", num_samples) # debug pre rewards
+        # print("generator.py sample: (batch_size)", batch_size) # debug pre rewards
         num_batch = num_samples // batch_size + 1 if num_samples != batch_size else 1
         samples = torch.zeros(num_batch * batch_size, self.max_seq_len).long()
         
-        print("generator.py sample: (num_batch)", num_batch)
+        # print("generator.py sample: (num_batch)", num_batch) # debug pre rewards
         
         # Generate sentences with multinomial sampling strategy
         for b in range(num_batch):
@@ -85,8 +85,8 @@ class LSTMGenerator(nn.Module):
                 inp = next_token.view(-1)
         samples = samples[:num_samples]
         
-        print("generator.py sample: (samples)", samples)
-        print("generator.py sample: (samples size)", samples.size())
+        # print("generator.py sample: (samples)", samples) # debug pre rewards
+        # print("generator.py sample: (samples size)", samples.size()) # debug pre rewards
         return samples
 
     def init_params(self):
