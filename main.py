@@ -120,7 +120,8 @@ if __name__ == '__main__':
     opt = parser.parse_args()
 
     if opt.if_real_data:
-        opt.max_seq_len, opt.vocab_size = text_process('dataset/' + opt.dataset + '.txt')
+        # opt.max_seq_len, opt.vocab_size = text_process('dataset/' + opt.dataset + '.txt') # Descomentar si se desea usar como largo, el mayor encontrado dentro del train dataset
+        sequence_len, opt.vocab_size = text_process('dataset/' + opt.dataset + '.txt')
         cfg.extend_vocab_size = len(load_test_dict(opt.dataset)[0])  # init classifier vocab_size
     cfg.init_param(opt)
     opt.save_root = cfg.save_root

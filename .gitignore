@@ -1,10 +1,14 @@
 # Custom
 log/
-# dataset/
+dataset/
 pretrain/
 save/
 savefig/
 .idea/
+embedding_models/
+*.w2v
+**.DS_Store
+temp/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

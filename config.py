@@ -149,7 +149,7 @@ else:
 
 if multi_gpu:
     devices = '0,1'
-#     devices = '1' #Descomentar en caso de querer ejecutar en otra GPU de id 1
+    # devices = '1' #Descomentar en caso de querer ejecutar en otra GPU de id 1
     devices = list(map(int, devices.split(',')))
     device = devices[0]
     torch.cuda.set_device(device)
