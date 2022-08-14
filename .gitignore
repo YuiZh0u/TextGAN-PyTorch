@@ -5,10 +5,13 @@ pretrain/
 save/
 savefig/
 .idea/
-embedding_models/
-*.w2v
-**.DS_Store
 temp/
+**.DS_Store
+
+#Embedding
+**.w2v
+**.kv
+**.kv.vectors.npy
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
