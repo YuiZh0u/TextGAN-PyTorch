@@ -116,9 +116,8 @@ dis_hidden_dim = 64
 num_rep = 64  # RelGAN
 
 # ===Other===
-
-mutation_rate = 0
-similar_pct = 0
+save_reward_samples = int(False)
+variation_name = None # mutation, most_similar, GPT_similar
 
 # ===log===
 log_time_str = strftime("%m%d_%H%M_%S", localtime())
@@ -206,7 +205,7 @@ def init_param(opt):
         lambda_fq, freeze_dis, freeze_clas, use_all_real_fake, use_population, gen_init, dis_init, \
         multi_oracle_samples_path, k_label, cat_train_data, cat_test_data, evo_temp_step, devices, \
         use_nll_oracle, use_nll_gen, use_nll_div, use_bleu, use_self_bleu, use_clas_acc, use_ppl, \
-        mutation_rate, similar_pct
+        variation_name, save_reward_samples
 
     if_test = True if opt.if_test == 1 else False
     run_model = opt.run_model
@@ -288,8 +287,8 @@ def init_param(opt):
     signal_file = opt.signal_file
     tips = opt.tips
 
-    mutation_rate = opt.mutation_rate
-    similar_pct = opt.similar_pct
+    variation_name = opt.variation_name
+    save_reward_samples = opt.save_reward_samples
 
     # CUDA device
     if multi_gpu:

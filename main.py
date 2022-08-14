@@ -106,8 +106,8 @@ def program_config(parser):
     parser.add_argument('--tips', default=cfg.tips, type=str)
 
     # Other
-    parser.add_argument('--mutation_rate', default=cfg.mutation_rate, type=float)
-    parser.add_argument('--similar_pct', default=cfg.similar_pct, type=float)
+    parser.add_argument('--variation_name', default=cfg.variation_name, type=str)
+    parser.add_argument('--save_reward_samples', default=cfg.save_reward_samples, type=int)
 
     return parser
 

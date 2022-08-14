@@ -4,7 +4,7 @@
 # @FileName     : seqgan_instructor.py
 # @Time         : Created at 2019-06-05
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import torch
@@ -43,6 +43,9 @@ class SeqGANInstructor(BasicInstructor):
             if cfg.if_save and not cfg.if_test:
                 torch.save(self.gen.state_dict(), cfg.pretrained_gen_path)
                 print('Save pre-trained generator: {}'.format(cfg.pretrained_gen_path))
+        elif cfg.gen_pretrain:
+            self.log.info('Load MLE pre-trained generator: {}'.format(cfg.pretrained_gen_path))
+            self.gen.load_state_dict(torch.load(cfg.pretrained_gen_path, map_location='cuda:{}'.format(cfg.device)))
 
         # ===TRAIN DISCRIMINATOR====
         if not cfg.dis_pretrain:
@@ -51,6 +54,9 @@ class SeqGANInstructor(BasicInstructor):
             if cfg.if_save and not cfg.if_test:
                 torch.save(self.dis.state_dict(), cfg.pretrained_dis_path)
                 print('Save pre-trained discriminator: {}'.format(cfg.pretrained_dis_path))
+        elif cfg.dis_pretrain:
+            self.log.info('Load pre-trained discriminator: {}'.format(cfg.pretrained_dis_path))
+            self.dis.load_state_dict(torch.load(cfg.pretrained_dis_path, map_location='cuda:{}'.format(cfg.device)))
 
         # ===ADVERSARIAL TRAINING===
         self.log.info('Starting Adversarial Training...')
@@ -62,12 +68,7 @@ class SeqGANInstructor(BasicInstructor):
             if self.sig.adv_sig:
                 self.adv_train_generator(cfg.ADV_g_step)  # Generator
                 self.train_discriminator(cfg.ADV_d_step, cfg.ADV_d_epoch, 'ADV')  # Discriminator
-                # print("adv_epoch: ", adv_epoch) # debug pre rewards
-                # print("cfg.adv_log_step: ", cfg.adv_log_step) # debug pre rewards
-    
-                #if cfg.if_save and not cfg.if_test:
-                #    self._save('ADV', adv_epoch)
-                
+
                 if adv_epoch % cfg.adv_log_step == 0 or adv_epoch == cfg.ADV_train_epoch - 1:
                     if cfg.if_save and not cfg.if_test:
                         self._save('ADV', adv_epoch)
@@ -109,32 +110,31 @@ class SeqGANInstructor(BasicInstructor):
         total_g_loss = 0
         for step in range(g_step):
             inp, target = GenDataIter.prepare(self.gen.sample(cfg.batch_size, cfg.batch_size), gpu=cfg.CUDA)
-            # print("Algorithm Start: search and replacement by the most similar")
-            # inp_changed, mutated_samples = similar_token(target) # debug pre rewards
-
-            # print("seqgan_instructor inp original: ", inp) # debug pre rewards
-            # print("seqgan_instructor inp changed: ", inp_changed) # debug pre rewards
-            #print("seqgan_instructor inp size: ", inp.size())
-            # print("seqgan_instructor target: ", target) # debug pre rewards
-            #print("seqgan_instructor target size: ", target.size())
-            # print("seqgan_instructor mutated_samples: ", mutated_samples) # debug pre rewards
 
             # ===Train===
-            rewards_original = rollout_func.get_reward(target, cfg.rollout_num, self.dis)
-            # rewards_changed = rollout_func.get_reward(mutated_samples, cfg.rollout_num, self.dis) # debug pre rewards
-            # print("seqgan_instructor rewards original: ", rewards_original) 
-            # print("seqgan_instructor rewards changed: ", rewards_changed) # debug pre rewards
-            #print("seqgan_instructor rewards size: ", rewards.size())
-            adv_loss = self.gen.batchPGLoss(inp, target, rewards_original) # adv_loss_original
-            # print("seqgan_instructor adv_loss original: ", adv_loss) # adv_loss_original
-            # adv_loss = self.gen.batchPGLoss(inp_changed, mutated_samples, rewards_changed) # debug pre rewards
-            # print("seqgan_instructor adv_loss changed: ", adv_loss) # debug pre rewards
-            #print("seqgan_instructor adv_loss size: ", adv_loss.size())
+            self.log.info('Calculating reward via: {}'.format('original' if cfg.variation_name == None else cfg.variation_name))
+            if cfg.variation_name == 'mutation':
+                mutation_rate = float(0.1)
+                similar_pct = float(0.8)
+                inp_mutated, mutated_samples = similar_token(target, mutation_rate, similar_pct)
+                rewards = rollout_func.get_reward(mutated_samples, cfg.rollout_num, self.dis)
+                adv_loss = self.gen.batchPGLoss(inp_mutated, mutated_samples, rewards)
+            elif cfg.variation_name == 'most_similar':
+                rewards = rollout_func.get_reward_similarity(target, cfg.rollout_num)
+                adv_loss = self.gen.batchPGLoss(inp, target, rewards)
+            elif cfg.variation_name == 'GPT_similar':
+                windows_size = 2
+                rate = float(0.3)
+                rewards = rollout_func.get_reward_gpt_similarity(target, windows_size, rate)
+                adv_loss = self.gen.batchPGLoss(inp, target, rewards)
+            else:
+                rewards = rollout_func.get_reward(target, cfg.rollout_num, self.dis)
+                adv_loss = self.gen.batchPGLoss(inp, target, rewards)
+
             self.optimize(self.gen_adv_opt, adv_loss)
             total_g_loss += adv_loss.item()
 
         # ===Test===
-        print("Calculando las metricas del entrenamiendo adversario")
         self.log.info('[ADV-GEN]: g_loss = %.4f, %s' % (total_g_loss, self.cal_metrics(fmt_str=True)))
 
     def train_discriminator(self, d_step, d_epoch, phase='MLE'):
