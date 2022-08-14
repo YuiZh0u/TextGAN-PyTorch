@@ -4,7 +4,7 @@
 # @FileName     : run_seqgan.py
 # @Time         : Created at 2019-05-27
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import sys
@@ -36,22 +36,20 @@ if_test = int(False)
 run_model = 'seqgan'
 CUDA = int(True)
 oracle_pretrain = int(True)
-gen_pretrain = int(False)
-dis_pretrain = int(False)
-# MLE_train_epoch = 120
-MLE_train_epoch = 120
-# ADV_train_epoch = 200
-ADV_train_epoch = 71
+gen_pretrain = int(False) # False
+dis_pretrain = int(False) # False
+MLE_train_epoch = 120 # 120
+ADV_train_epoch = 71 # 200
 tips = 'SeqGAN experiments'
 
 # ===Oracle  or Real===
-if_real_data = [int(False), int(True), int(True), int(True), int(True)]
-dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets', 'hurricane_tweets']
-vocab_size = [5000, 0, 0, 0, 0]
+if_real_data = [int(False), int(True), int(True), int(True), int(True), int(True)]
+dataset = ['oracle', 'image_coco', 'emnlp_news', 'covid_tweets', 'hurricane_tweets', 'covid_tweets_v2']
+vocab_size = [5000, 0, 0, 0, 0, 0]
 
 # ===Basic Param===
 data_shuffle = int(False)
-model_type = 'vanilla'
+model_type = 'vanilla' # vanilla
 gen_init = 'normal'
 dis_init = 'uniform'
 samples_num = 10000
@@ -64,15 +62,15 @@ adv_log_step = 1
 
 # ===Generator===
 ADV_g_step = 1
-rollout_num = 16
+rollout_num = 16 # 16
 gen_embed_dim = 32
 gen_hidden_dim = 32
 
 # ===Discriminator===
-d_step = 5 #Original es 5
-d_epoch = 3 #Original es 3
-ADV_d_step = 4
-ADV_d_epoch = 2
+d_step = 5 # 5
+d_epoch = 3 # 3
+ADV_d_step = 4 # 4
+ADV_d_epoch = 2 # 2
 dis_embed_dim = 64
 dis_hidden_dim = 64
 
@@ -85,8 +83,8 @@ use_self_bleu = int(True)
 use_ppl = int(False)
 
 # ===Other===
-mutation_rate = 0
-similar_pct = 0
+variation_name = None # mutation, most_similar, GPT_similar
+save_reward_samples = int(False)
 
 args = [
     # Program
@@ -142,7 +140,8 @@ args = [
     '--use_ppl', use_ppl,
 
     #Other
-    '--mutation_rate', mutation_rate
+    '--variation_name', variation_name,
+    '--save_reward_samples', save_reward_samples
 ]
 
 args = list(map(str, args))

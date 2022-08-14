@@ -4,12 +4,16 @@
 # @FileName     : rollout.py
 # @Time         : Created at 2019-03-15
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import copy
 import torch
 import torch.nn.functional as F
+
+import numpy as np
+from embedding_models.w2v_model import get_w2vmodel
+from utils.sentences_similarity import mc_similarity, generate_gpt_sentences
 
 import config as cfg
 from utils.text_process import load_dict, write_tokens, tensor_to_tokens
@@ -55,13 +59,6 @@ class ROLLOUT:
             inp = out.view(-1)
 
             out, hidden = self.gen.forward(inp, hidden, need_hidden=True)
-        
-        #print("rollout_mc_search samples: ", samples , end=", ")
-        #print("rollout_mc_search size: ", samples.size())
-        #tokens = tensor_to_tokens(samples, self.idx2word_dict)
-        #save_sample_path = cfg.save_samples_root + 'rollout_mc_search_samples.txt'
-        #write_tokens(save_sample_path, tokens)
-        # print(tokens)
 
         return samples
 
@@ -154,10 +151,6 @@ class ROLLOUT:
             for i in range(rollout_num):
                 for given_num in range(1, self.max_seq_len + 1):
                     samples = self.rollout_mc_search(sentences, given_num)
-                    # if(idx == (rollout_num * self.max_seq_len - 1)):
-                        # tokens = tensor_to_tokens(samples, self.idx2word_dict)
-                        # save_sample_path = cfg.save_samples_root + 'rollout_mc_search_samples_{:05d}.txt'.format(idx)
-                        # write_tokens(save_sample_path, tokens)
                     out = dis.forward(samples)
                     out = F.softmax(out, dim=-1)
                     reward = out[:, current_k + 1]
@@ -165,12 +158,66 @@ class ROLLOUT:
                     idx += 1
 
         # rewards = torch.mean(rewards, dim=0)
-        # print("pre-rewards: ", rewards, end=", ")
-        # print("pre-rewards size: ", rewards.size())
         rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
-        # print("rewards: ", rewards, end=", ")
-        # print("rewards size: ", rewards.size())
         return rewards
+
+    def get_reward_similarity(self, sentences, rollout_num):
+
+        with torch.no_grad():
+            batch_size = sentences.size(0)
+            rewards_np = np.zeros([rollout_num * self.max_seq_len, batch_size])
+
+            adv_sentences = []
+            for array_ofwords in tensor_to_tokens(sentences, self.idx2word_dict):
+                  adv_sentences.append(' '.join(array_ofwords))
+            w2v_model = get_w2vmodel('wikidump') #TODO: que sea cfg y se cargue desde la funcion padre
+
+            idx = 0
+            for i in range(rollout_num):
+                for given_num in range(1, self.max_seq_len + 1):
+                    samples = self.rollout_mc_search(sentences, given_num)
+                    mc_tokens = tensor_to_tokens(samples, self.idx2word_dict)
+                    mc_sentences = []
+                    for arr_of_word in mc_tokens:
+                        mc_sentences.append(' '.join(arr_of_word))
+
+                    for i in range(batch_size):
+                        rewards_np[idx][i] = mc_similarity(w2v_model, adv_sentences[i], mc_sentences[i])
+
+                    idx += 1
+
+            rewards = torch.tensor(rewards_np, dtype=torch.float)
+            if self.gpu:
+                rewards = rewards.cuda()
+
+        rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
+        return rewards
+
+
+    def get_reward_gpt_similarity(self, sentences, windows_size, rate, rollout_num=1):
+
+        adv_sentences = []
+        for array_ofwords in tensor_to_tokens(sentences, self.idx2word_dict):
+              adv_sentences.append(' '.join(array_ofwords))
+
+        with torch.no_grad():
+            batch_size = sentences.size(0)
+            rewards_np = np.zeros([self.max_seq_len, batch_size])
+
+            w2v_model = get_w2vmodel('wikidump') #TODO: que sea cfg y se cargue desde la funcion padre
+
+            for num in range(self.max_seq_len):
+                gpt_sentences = generate_gpt_sentences(adv_sentences, windows_size, rate)
+                for i in range(batch_size):
+                    rewards_np[num][i] = mc_similarity(w2v_model, adv_sentences[i], gpt_sentences[i])
+
+            rewards = torch.tensor(rewards_np, dtype=torch.float)
+            if self.gpu:
+                rewards = rewards.cuda()
+
+        rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
+        return rewards
+
 
     def get_reward_leakgan(self, sentences, rollout_num, dis, current_k):
         """
