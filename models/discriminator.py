@@ -98,7 +98,10 @@ class GRUDiscriminator(nn.Module):
         h = autograd.Variable(torch.zeros(2 * 2 * 1, batch_size, self.hidden_dim))
 
         if self.gpu:
-            return h.cuda()
+            if cfg.CUDA:
+                return h.cuda()
+            elif cfg.MPS:
+                return h.to(torch.device('mps'))
         else:
             return h
 

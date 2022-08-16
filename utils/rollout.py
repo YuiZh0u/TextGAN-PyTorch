@@ -50,7 +50,10 @@ class ROLLOUT:
         samples[:, :given_num] = sentences[:, :given_num]
 
         if self.gpu:
-            samples = samples.cuda()
+            if cfg.CUDA:
+                samples = samples.cuda()
+            elif cfg.MPS:
+                samples = samples.to(torch.device('mps'))
 
         # MC search
         for i in range(given_num, self.max_seq_len):
@@ -76,7 +79,10 @@ class ROLLOUT:
             batch_size = sentences.size(0)
             rewards = torch.zeros([rollout_num * self.max_seq_len, batch_size]).float()
             if self.gpu:
-                rewards = rewards.cuda()
+                if cfg.CUDA:
+                    rewards = rewards.cuda()
+                elif cfg.MPS:
+                    rewards = rewards.to(torch.device('mps'))
             idx = 0
             for i in range(rollout_num):
                 for given_num in range(1, self.max_seq_len + 1):
@@ -119,7 +125,10 @@ class ROLLOUT:
 
             rewards = torch.tensor(rewards_np, dtype=torch.float)
             if self.gpu:
-                rewards = rewards.cuda()
+                if cfg.CUDA:
+                    rewards = rewards.cuda()
+                elif cfg.MPS:
+                    rewards = rewards.to(torch.device('mps'))
 
         rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
         return rewards
@@ -144,7 +153,10 @@ class ROLLOUT:
 
             rewards = torch.tensor(rewards_np, dtype=torch.float)
             if self.gpu:
-                rewards = rewards.cuda()
+                if cfg.CUDA:
+                    rewards = rewards.cuda()
+                elif cfg.MPS:
+                    rewards = rewards.to(torch.device('mps'))
 
         rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
         return rewards
@@ -166,7 +178,12 @@ class ROLLOUT:
                 rewards[idx] = reward
                 idx += 1
 
-        rewards = torch.Tensor(rewards).cuda()
+        if self.gpu:
+            if cfg.CUDA:
+                rewards = torch.Tensor(rewards).cuda()
+            elif cfg.MPS:
+                rewards = torch.Tensor(rewards).to(torch.device('mps'))
+
         rewards = torch.sum(rewards, dim=0) / rollout_num
         print("token reward: ", rewards, end=", ")
         return rewards

@@ -4,10 +4,11 @@
 # @FileName     : cat_data_loader.py
 # @Time         : Created at 2019-05-31
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import random
+import config as cfg
 from torch.utils.data import Dataset, DataLoader
 
 from utils.text_process import *
@@ -79,7 +80,10 @@ class CatGenDataIter:
         label = label[perm].detach()
 
         if gpu:
-            return inp.cuda(), target.cuda(), label.cuda()
+            if cfg.CUDA:
+                return inp.cuda(), target.cuda(), label.cuda()
+            if cfg.MPS:
+                return inp.to(torch.device('mps')), target.to(torch.device('mps')), label.to(torch.device('mps'))
         return inp, target, label
 
     def load_data(self, filename):
@@ -159,5 +163,8 @@ class CatClasDataIter:
         target = target[perm]
 
         if gpu:
-            return inp.cuda(), target.cuda()
+            if cfg.CUDA:
+                return inp.cuda(), target.cuda()
+            if cfg.MPS:
+                return inp.to(torch.device('mps')), target.to(torch.device('mps'))
         return inp, target

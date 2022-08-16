@@ -4,7 +4,7 @@
 # @FileName     : nll.py
 # @Time         : Created at 2019-05-31
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import torch
@@ -47,14 +47,18 @@ class NLL(Metrics):
         self.leak_dis = leak_dis
 
     @staticmethod
-    def cal_nll(model, data_loader, criterion, gpu=cfg.CUDA):
+    def cal_nll(model, data_loader, criterion, gpu=cfg.CUDA or cfg.MPS):
         """NLL score for general text generation model."""
         total_loss = 0
         with torch.no_grad():
             for i, data in enumerate(data_loader):
                 inp, target = data['input'], data['target']
                 if gpu:
-                    inp, target = inp.cuda(), target.cuda()
+                    if cfg.CUDA:
+                        inp, target = inp.cuda(), target.cuda()
+                    elif cfg.MPS:
+                        inp, target = inp.to(torch.device('mps')), target.to(torch.device('mps'))
+
 
                 hidden = model.init_hidden(data_loader.batch_size)
                 pred = model.forward(inp, hidden)
@@ -63,7 +67,7 @@ class NLL(Metrics):
         return round(total_loss / len(data_loader), 4)
 
     @staticmethod
-    def cal_nll_with_label(model, data_loader, label_i, criterion, gpu=cfg.CUDA):
+    def cal_nll_with_label(model, data_loader, label_i, criterion, gpu=cfg.CUDA or cfg.MPS):
         """NLL score for category text generation model."""
         assert type(label_i) == int, 'missing label'
         total_loss = 0
@@ -72,7 +76,10 @@ class NLL(Metrics):
                 inp, target = data['input'], data['target']
                 label = torch.LongTensor([label_i] * data_loader.batch_size)
                 if gpu:
-                    inp, target, label = inp.cuda(), target.cuda(), label.cuda()
+                    if cfg.CUDA:
+                        inp, target, label = inp.cuda(), target.cuda(), label.cuda()
+                    elif cfg.MPS:
+                        inp, target, label = inp.to(torch.device('mps')), target.to(torch.device('mps')), label.to(torch.device('mps'))
 
                 hidden = model.init_hidden(data_loader.batch_size)
                 if model.name == 'oracle':
@@ -84,14 +91,17 @@ class NLL(Metrics):
         return round(total_loss / len(data_loader), 4)
 
     @staticmethod
-    def cal_nll_with_leak_dis(model, data_loader, leak_dis, gpu=cfg.CUDA):
+    def cal_nll_with_leak_dis(model, data_loader, leak_dis, gpu=cfg.CUDA or cfg.MPS):
         """NLL score for LeakGAN."""
         total_loss = 0
         with torch.no_grad():
             for i, data in enumerate(data_loader):
                 inp, target = data['input'], data['target']
                 if gpu:
-                    inp, target = inp.cuda(), target.cuda()
+                    if cfg.CUDA:
+                        inp, target = inp.cuda(), target.cuda()
+                    elif cfg.MPS:
+                        inp, target = inp.to(torch.device('mps')), target.to(torch.device('mps'))
 
                 loss = model.batchNLLLoss(target, leak_dis)
                 total_loss += loss.item()

@@ -34,7 +34,8 @@ scriptname = 'main.py'
 # ===Program===
 if_test = int(False)
 run_model = 'seqgan'
-CUDA = int(True)
+CUDA = int(False)
+MPS = int(True)
 oracle_pretrain = int(True)
 gen_pretrain = int(False) # False
 dis_pretrain = int(False) # False
@@ -91,6 +92,7 @@ args = [
     '--if_test', if_test,
     '--run_model', run_model,
     '--cuda', CUDA,
+    '--mps', MPS,
     # '--device', gpu_id,  # comment for auto GPU
     '--ora_pretrain', oracle_pretrain,
     '--gen_pretrain', gen_pretrain,

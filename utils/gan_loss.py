@@ -4,7 +4,7 @@
 # @FileName     : gan_loss.py
 # @Time         : Created at 2019-07-11
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import torch
@@ -61,7 +61,10 @@ class GANLoss(nn.Module):
         else:
             target_tensor = self.fake_label
         if self.gpu:
-            target_tensor = target_tensor.cuda()
+            if cfg.CUDA:
+                target_tensor = target_tensor.cuda()
+            elif cfg.MPS:
+                target_tensor = target_tensor.to(torch.device('mps'))
         return target_tensor.expand_as(prediction)
 
     def G_loss(self, Dreal, Dfake):

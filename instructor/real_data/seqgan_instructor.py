@@ -25,8 +25,8 @@ class SeqGANInstructor(BasicInstructor):
 
         # generator, discriminator
         self.gen = SeqGAN_G(cfg.gen_embed_dim, cfg.gen_hidden_dim, cfg.vocab_size, cfg.max_seq_len,
-                            cfg.padding_idx, gpu=cfg.CUDA)
-        self.dis = SeqGAN_D(cfg.dis_embed_dim, cfg.vocab_size, cfg.padding_idx, gpu=cfg.CUDA)
+                            cfg.padding_idx, gpu=cfg.CUDA or cfg.MPS)
+        self.dis = SeqGAN_D(cfg.dis_embed_dim, cfg.vocab_size, cfg.padding_idx, gpu=cfg.CUDA or cfg.MPS)
         self.init_model()
 
         # Optimizer
@@ -45,7 +45,8 @@ class SeqGANInstructor(BasicInstructor):
                 print('Save pre-trained generator: {}'.format(cfg.pretrained_gen_path))
         elif cfg.gen_pretrain:
             self.log.info('Load MLE pre-trained generator: {}'.format(cfg.pretrained_gen_path))
-            self.gen.load_state_dict(torch.load(cfg.pretrained_gen_path, map_location='cuda:{}'.format(cfg.device)))
+            self.gen.load_state_dict(torch.load(cfg.pretrained_gen_path,
+                                                map_location='cuda:{}'.format(cfg.device) if cfg.CUDA else torch.device(cfg.device)))
 
         # ===TRAIN DISCRIMINATOR====
         if not cfg.dis_pretrain:
@@ -56,7 +57,8 @@ class SeqGANInstructor(BasicInstructor):
                 print('Save pre-trained discriminator: {}'.format(cfg.pretrained_dis_path))
         elif cfg.dis_pretrain:
             self.log.info('Load pre-trained discriminator: {}'.format(cfg.pretrained_dis_path))
-            self.dis.load_state_dict(torch.load(cfg.pretrained_dis_path, map_location='cuda:{}'.format(cfg.device)))
+            self.dis.load_state_dict(torch.load(cfg.pretrained_dis_path,
+                                                map_location='cuda:{}'.format(cfg.device) if cfg.CUDA else torch.device(cfg.device)))
 
         # ===ADVERSARIAL TRAINING===
         self.log.info('Starting Adversarial Training...')
@@ -106,10 +108,10 @@ class SeqGANInstructor(BasicInstructor):
         The gen is trained using policy gradients, using the reward from the discriminator.
         Training is done for num_batches batches.
         """
-        rollout_func = rollout.ROLLOUT(self.gen, cfg.CUDA)
+        rollout_func = rollout.ROLLOUT(self.gen, cfg.CUDA or cfg.MPS)
         total_g_loss = 0
         for step in range(g_step):
-            inp, target = GenDataIter.prepare(self.gen.sample(cfg.batch_size, cfg.batch_size), gpu=cfg.CUDA)
+            inp, target = GenDataIter.prepare(self.gen.sample(cfg.batch_size, cfg.batch_size), gpu=cfg.CUDA or cfg.MPS)
 
             # ===Train===
             self.log.info('Calculating reward via: {}'.format('original' if cfg.variation_name == None else cfg.variation_name))

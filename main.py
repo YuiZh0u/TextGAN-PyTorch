@@ -27,6 +27,7 @@ def program_config(parser):
     parser.add_argument('--d_type', default=cfg.d_type, type=str)
     parser.add_argument('--if_real_data', default=cfg.if_real_data, type=int)
     parser.add_argument('--cuda', default=cfg.CUDA, type=int)
+    parser.add_argument('--mps', default=cfg.MPS, type=int)
     parser.add_argument('--device', default=cfg.device, type=int)
     parser.add_argument('--devices', default=cfg.devices, type=str)
     parser.add_argument('--shuffle', default=cfg.data_shuffle, type=int)

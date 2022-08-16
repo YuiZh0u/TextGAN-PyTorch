@@ -4,7 +4,7 @@
 # @FileName     : data_utils.py
 # @Time         : Created at 2019-03-16
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 from time import strftime, localtime
 
@@ -20,9 +20,11 @@ def create_multi_oracle(number):
     for i in range(number):
         print('Creating Oracle %d...' % i)
         oracle = Oracle(cfg.gen_embed_dim, cfg.gen_hidden_dim, cfg.vocab_size,
-                        cfg.max_seq_len, cfg.padding_idx, gpu=cfg.CUDA)
+                        cfg.max_seq_len, cfg.padding_idx, gpu=cfg.CUDA or cfg.MPS)
         if cfg.CUDA:
             oracle = oracle.cuda()
+        elif cfg.MPS:
+            oracle = oracle.to(torch.device('mps'))
         large_samples = oracle.sample(cfg.samples_num, 4 * cfg.batch_size)
         small_samples = oracle.sample(cfg.samples_num // 2, 4 * cfg.batch_size)
 
@@ -40,9 +42,11 @@ def create_specific_oracle(from_a, to_b, num=1, save_path='../pretrain/'):
     for i in range(num):
         while True:
             oracle = Oracle(cfg.gen_embed_dim, cfg.gen_hidden_dim, cfg.vocab_size,
-                            cfg.max_seq_len, cfg.padding_idx, gpu=cfg.CUDA)
+                            cfg.max_seq_len, cfg.padding_idx, gpu=cfg.CUDA or cfg.MPS)
             if cfg.CUDA:
                 oracle = oracle.cuda()
+            elif cfg.MPS:
+                oracle = oracle.to(torch.device('mps'))
 
             big_samples = oracle.sample(cfg.samples_num, 8 * cfg.batch_size)
             small_samples = oracle.sample(cfg.samples_num // 2, 8 * cfg.batch_size)
@@ -69,9 +73,11 @@ def create_many_oracle(from_a, to_b, num=1, save_path='../pretrain/'):
     for i in range(num):
         while True:
             oracle = Oracle(cfg.gen_embed_dim, cfg.gen_hidden_dim, cfg.vocab_size,
-                            cfg.max_seq_len, cfg.padding_idx, gpu=cfg.CUDA)
+                            cfg.max_seq_len, cfg.padding_idx, gpu=cfg.CUDA or cfg.MPS)
             if cfg.CUDA:
                 oracle = oracle.cuda()
+            elif cfg.MPS:
+                oracle = oracle.to(torch.device('mps'))
 
             big_samples = oracle.sample(cfg.samples_num, 8 * cfg.batch_size)
             small_samples = oracle.sample(cfg.samples_num // 2, 8 * cfg.batch_size)

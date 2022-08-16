@@ -4,10 +4,11 @@
 # @FileName     : data_loader.py
 # @Time         : Created at 2019-05-31
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import random
+import config as cfg
 from torch.utils.data import Dataset, DataLoader
 
 from utils.text_process import *
@@ -70,19 +71,17 @@ class GenDataIter:
     @staticmethod
     def prepare(samples, gpu=False):
         """Add start_letter to samples as inp, target same as samples"""
-        # print("GenDataIter prepare samples: ", samples) # debug pre rewards
-        # print("GenDataIter prepare samples size: ", samples.size()) # debug pre rewards
         inp = torch.zeros(samples.size()).long()
         target = samples
         inp[:, 0] = cfg.start_letter
         inp[:, 1:] = target[:, :cfg.max_seq_len - 1]
 
         if gpu:
-            return inp.cuda(), target.cuda()
-        # print("GenDataIter prepare inp: ", inp) # debug pre rewards
-        # print("GenDataIter prepare inp size: ", inp.size()) # debug pre rewards
-        # print("GenDataIter prepare target: ", target) # debug pre rewards
-        # print("GenDataIter prepare target size: ", target.size()) # debug pre rewards
+            if cfg.CUDA:
+                return inp.cuda(), target.cuda()
+            elif cfg.MPS:
+                return inp.to(torch.device('mps')), target.to(torch.device('mps'))
+
         return inp, target
 
     def load_data(self, filename):
@@ -129,8 +128,9 @@ class DisDataIter:
         target = target[perm]
 
         if gpu:
-            return inp.cuda(), target.cuda()
-        # print("DisDataIter prepare inp: ", inp) # debug pre rewards
-        # print("DisDataIter prepare inp size: ", inp.size()) # debug pre rewards
-        # print("DisDataIter prepare target size: ", target.size()) # debug pre rewards
+            if cfg.CUDA:
+                return inp.cuda(), target.cuda()
+            elif cfg.MPS:
+                return inp.to(torch.device('mps')), target.to(torch.device('mps'))
+
         return inp, target

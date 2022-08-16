@@ -16,8 +16,9 @@ import torch
 # ===Program===
 if_test = False
 CUDA = True
+MPS = False
 multi_gpu = False
-# multi_gpu = True #Descomentar en caso de querer ejecutar en otra GPU
+# multi_gpu = True #Descomentar en caso de querer ejecutar en otra GPU con CUDA
 if_save = True
 data_shuffle = False  # False
 oracle_pretrain = True  # True
@@ -132,7 +133,7 @@ if os.path.exists(log_filename + '.txt'):
 log_filename = log_filename + '.txt'
 
 # Automatically choose GPU or CPU
-if torch.cuda.is_available() and torch.cuda.device_count() > 0:
+if CUDA and torch.cuda.is_available() and torch.cuda.device_count() > 0:
     os.system('nvidia-smi -q -d Utilization > gpu')
     with open('gpu', 'r') as _tmpfile:
         util_gpu = list(map(int, re.findall(r'Gpu\s+:\s*(\d+)\s*%', _tmpfile.read())))
@@ -141,6 +142,8 @@ if torch.cuda.is_available() and torch.cuda.device_count() > 0:
         device = util_gpu.index(min(util_gpu))
     else:
         device = 0
+elif MPS and torch.backends.mps.is_available():
+    device = 'mps'
 else:
     device = -1
 # device=0
@@ -155,7 +158,10 @@ if multi_gpu:
     os.environ['CUDA_VISIBLE_DIVICES'] = ','.join(map(str, devices))
 else:
     devices = str(device)
-    torch.cuda.set_device(device)
+    if CUDA:
+        torch.cuda.set_device(device)
+    elif MPS:
+        torch.device(device)
 
 # ===Save Model and samples===
 save_root = 'save/{}/{}/{}_{}_dt-{}_lt-{}_mt-{}_et-{}_sl{}_temp{}_lfd{}_T{}/'.format(time.strftime("%Y%m%d"),
@@ -205,7 +211,7 @@ def init_param(opt):
         lambda_fq, freeze_dis, freeze_clas, use_all_real_fake, use_population, gen_init, dis_init, \
         multi_oracle_samples_path, k_label, cat_train_data, cat_test_data, evo_temp_step, devices, \
         use_nll_oracle, use_nll_gen, use_nll_div, use_bleu, use_self_bleu, use_clas_acc, use_ppl, \
-        variation_name, save_reward_samples
+        variation_name, save_reward_samples, MPS
 
     if_test = True if opt.if_test == 1 else False
     run_model = opt.run_model
@@ -218,6 +224,7 @@ def init_param(opt):
     d_type = opt.d_type
     if_real_data = True if opt.if_real_data == 1 else False
     CUDA = True if opt.cuda == 1 else False
+    MPS = True if opt.mps == 1 else False
     device = opt.device
     devices = opt.devices
     data_shuffle = opt.shuffle
@@ -299,7 +306,10 @@ def init_param(opt):
         os.environ['CUDA_VISIBLE_DIVICES'] = ','.join(map(str, devices))
     else:
         devices = str(device)
-        torch.cuda.set_device(device)
+        if CUDA:
+            torch.cuda.set_device(device)
+        elif MPS:
+            torch.device(device)
 
     # Save path
     save_root = 'save/{}/{}/{}_{}_dt-{}_lt-{}_mt-{}_et-{}_sl{}_temp{}_lfd{}_T{}/'.format(time.strftime("%Y%m%d"),

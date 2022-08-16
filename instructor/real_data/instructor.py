@@ -4,7 +4,7 @@
 # @FileName     : instructor.py
 # @Time         : Created at 2019-04-25
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import numpy as np
@@ -66,8 +66,8 @@ class BasicInstructor:
 
         # Metrics
         self.bleu = BLEU('BLEU', gram=[2, 3, 4, 5], if_use=cfg.use_bleu)
-        self.nll_gen = NLL('NLL_gen', if_use=cfg.use_nll_gen, gpu=cfg.CUDA)
-        self.nll_div = NLL('NLL_div', if_use=cfg.use_nll_div, gpu=cfg.CUDA)
+        self.nll_gen = NLL('NLL_gen', if_use=cfg.use_nll_gen, gpu=cfg.CUDA or cfg.MPS)
+        self.nll_div = NLL('NLL_div', if_use=cfg.use_nll_div, gpu=cfg.CUDA or cfg.MPS)
         self.self_bleu = BLEU('Self-BLEU', gram=[2, 3, 4], if_use=cfg.use_self_bleu)
         self.clas_acc = ACC(if_use=cfg.use_clas_acc)
         self.ppl = PPL(self.train_data, self.test_data, n_gram=5, if_use=cfg.use_ppl)
@@ -84,14 +84,19 @@ class BasicInstructor:
         if cfg.dis_pretrain:
             self.log.info(
                 'Load pre-trained discriminator: {}'.format(cfg.pretrained_dis_path))
-            self.dis.load_state_dict(torch.load(cfg.pretrained_dis_path, map_location='cuda:{}'.format(cfg.device)))
+            self.dis.load_state_dict(torch.load(cfg.pretrained_dis_path,
+                                                map_location='cuda:{}'.format(cfg.device) if cfg.CUDA else torch.device(cfg.device)))
         if cfg.gen_pretrain:
             self.log.info('Load MLE pre-trained generator: {}'.format(cfg.pretrained_gen_path))
-            self.gen.load_state_dict(torch.load(cfg.pretrained_gen_path, map_location='cuda:{}'.format(cfg.device)))
+            self.gen.load_state_dict(torch.load(cfg.pretrained_gen_path,
+                                                map_location='cuda:{}'.format(cfg.device) if cfg.CUDA else torch.device(cfg.device)))
 
         if cfg.CUDA:
             self.gen = self.gen.cuda()
             self.dis = self.dis.cuda()
+        elif cfg.MPS:
+            self.gen = self.gen.to(torch.device('mps'))
+            self.dis = self.dis.to(torch.device('mps'))
 
     def train_gen_epoch(self, model, data_loader, criterion, optimizer):
         total_loss = 0
@@ -99,6 +104,8 @@ class BasicInstructor:
             inp, target = data['input'], data['target']
             if cfg.CUDA:
                 inp, target = inp.cuda(), target.cuda()
+            elif cfg.MPS:
+                inp, target = inp.to(torch.device('mps')), target.to(torch.device('mps'))
 
             hidden = model.init_hidden(data_loader.batch_size)
             pred = model.forward(inp, hidden)
@@ -115,6 +122,8 @@ class BasicInstructor:
             inp, target = data['input'], data['target']
             if cfg.CUDA:
                 inp, target = inp.cuda(), target.cuda()
+            elif cfg.MPS:
+                inp, target = inp.to(torch.device('mps')), target.to(torch.device('mps'))
 
             pred = model.forward(inp)
             loss = criterion(pred, target)
@@ -168,6 +177,8 @@ class BasicInstructor:
                 inp, target = data['input'], data['target']
                 if cfg.CUDA:
                     inp, target = inp.cuda(), target.cuda()
+                elif cfg.MPS:
+                    inp, target = inp.to(torch.device('mps')), target.to(torch.device('mps'))
 
                 pred = model.forward(inp)
                 loss = criterion(pred, target)
@@ -267,3 +278,5 @@ class BasicInstructor:
         self.gen.temperature.data = torch.Tensor([get_fixed_temperature(cfg.temperature, i, N, cfg.temp_adpt)])
         if cfg.CUDA:
             self.gen.temperature.data = self.gen.temperature.data.cuda()
+        elif cfg.MPS:
+            self.gen.temperature.data = self.gen.temperature.data.to(torch.device('mps'))

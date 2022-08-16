@@ -64,19 +64,18 @@ class LSTMGenerator(nn.Module):
         Samples the network and returns num_samples samples of length max_seq_len.
         :return samples: num_samples * max_seq_length (a sampled sequence in each row)
         """
-        # print("generator.py sample: (num_samples)", num_samples) # debug pre rewards
-        # print("generator.py sample: (batch_size)", batch_size) # debug pre rewards
         num_batch = num_samples // batch_size + 1 if num_samples != batch_size else 1
         samples = torch.zeros(num_batch * batch_size, self.max_seq_len).long()
-        
-        # print("generator.py sample: (num_batch)", num_batch) # debug pre rewards
-        
+
         # Generate sentences with multinomial sampling strategy
         for b in range(num_batch):
             hidden = self.init_hidden(batch_size)
             inp = torch.LongTensor([start_letter] * batch_size)
             if self.gpu:
-                inp = inp.cuda()
+                if cfg.CUDA:
+                    inp = inp.cuda()
+                elif cfg.MPS:
+                    inp = inp.to(torch.device('mps'))
 
             for i in range(self.max_seq_len):
                 out, hidden = self.forward(inp, hidden, need_hidden=True)  # out: batch_size * vocab_size
@@ -84,9 +83,7 @@ class LSTMGenerator(nn.Module):
                 samples[b * batch_size:(b + 1) * batch_size, i] = next_token.view(-1)
                 inp = next_token.view(-1)
         samples = samples[:num_samples]
-        
-        # print("generator.py sample: (samples)", samples) # debug pre rewards
-        # print("generator.py sample: (samples size)", samples.size()) # debug pre rewards
+
         return samples
 
     def init_params(self):
@@ -110,6 +107,9 @@ class LSTMGenerator(nn.Module):
         c = torch.zeros(1, batch_size, self.hidden_dim)
 
         if self.gpu:
-            return h.cuda(), c.cuda()
+            if cfg.CUDA:
+                return h.cuda(), c.cuda()
+            elif cfg.MPS:
+                return h.to(torch.device('mps')), c.to(torch.device('mps'))
         else:
             return h, c

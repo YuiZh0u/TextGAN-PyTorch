@@ -40,5 +40,7 @@ def similar_token(samples, mutation_rate, similar_pct):
 
     if cfg.CUDA:
         return inp_mutated.cuda(), mutated_samples.cuda()
+    elif cfg.MPS:
+        return inp_mutated.to(torch.device('mps')), mutated_samples.to(torch.device('mps'))
 
     return inp_mutated, mutated_samples

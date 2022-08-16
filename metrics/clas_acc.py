@@ -4,10 +4,11 @@
 # @FileName     : clas_acc.py
 # @Time         : Created at 2019/12/4
 # @Blog         : http://zhiweil.ml/
-# @Description  : 
+# @Description  :
 # Copyrights (C) 2018. All Rights Reserved.
 
 import torch
+import config as cfg
 
 from metrics.basic import Metrics
 
@@ -39,7 +40,10 @@ class ACC(Metrics):
             for i, data in enumerate(data_loader):
                 inp, target = data['input'], data['target']
                 if self.gpu:
-                    inp, target = inp.cuda(), target.cuda()
+                    if cfg.CUDA:
+                        inp, target = inp.cuda(), target.cuda()
+                    elif cfg.MPS:
+                        inp, target = inp.to(torch.device('mps')), target.to(torch.device('mps'))
 
                 pred = model.forward(inp)
                 total_acc += torch.sum((pred.argmax(dim=-1) == target)).item()
