@@ -15,8 +15,8 @@ import torch
 
 # ===Program===
 if_test = False
-CUDA = True
-MPS = False
+CUDA = False
+MPS = True
 multi_gpu = False
 # multi_gpu = True #Descomentar en caso de querer ejecutar en otra GPU con CUDA
 if_save = True
