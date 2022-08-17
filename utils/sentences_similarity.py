@@ -7,10 +7,10 @@ from gensim.utils import deaccent
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from datetime import datetime
 
-def cleanText(sentences, single_sentence=False, include_num=False):
+def cleanText(sentences, single_sentence=False, ignore_num=True):
 
     puntuacion = '…!"$%&()*+,-./:;<=>?[\]^_`{|}~\''
-    if include_num:
+    if ignore_num:
         puntuacion += '0123456789'
     table = str.maketrans('', '', puntuacion)
     formatted_sentences = []
@@ -114,10 +114,12 @@ def process_gpt_input(sentences_list, windows_size, rate):
     for sentence in sentences_list:
         if len(sentence) > 0:
             matches = getMatchesByWindow(sentence, keywords, windows_size, True)
-            if len(matches)> 0:
+            if len(matches) > 0:
                 formatted_seqgan_sentences.append(matches)
             else:
                 formatted_seqgan_sentences.append(getFirstWordsFromSentence(rate, sentence))
+        else:
+            formatted_seqgan_sentences.append('')
     return formatted_seqgan_sentences
 
 
@@ -126,18 +128,22 @@ def generate_gpt_sentences(adv_sentences, windows_size, rate):
     tokenizer = AutoTokenizer.from_pretrained('gpt2')
     model = AutoModelForCausalLM.from_pretrained("gpt2")
     formatted_seqgan_sentences = process_gpt_input(adv_sentences, windows_size, rate)
+
     for idx, sentence in enumerate(formatted_seqgan_sentences):
-        encoded_input = tokenizer(sentence, return_tensors='pt').input_ids
-        outputs = model.generate(encoded_input, do_sample=True, max_length=cfg.max_seq_len, pad_token_id=tokenizer.eos_token_id)
-        generated_text = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-        reward_sentences.append(cleanText(generated_text, single_sentence=True)) #El input a `cleanText()` debe ser el arreglo con la oracion dentro
+        if sentence == '':
+            reward_sentences.append(sentence)
+        else:
+            encoded_input = tokenizer(sentence, return_tensors='pt').input_ids
+            outputs = model.generate(encoded_input, do_sample=True, max_length=cfg.max_seq_len, pad_token_id=tokenizer.eos_token_id)
+            generated_text = tokenizer.batch_decode(outputs, skip_special_tokens=True)
+            reward_sentences.append(cleanText(generated_text, single_sentence=True)) #El input a `cleanText()` debe ser el arreglo con la oracion dentro
 
     if cfg.save_reward_samples:
         save_gptsamples_path = os.path.join(cfg.save_root + 'gpt_samples/')
         if not os.path.exists(save_gptsamples_path):
             os.makedirs(save_gptsamples_path)
 
-        with open(save_gptsamples_path + 'sample_{}'.format(datetime.now().strftime("%m%d_%H%M")), 'a') as fout:
+        with open(save_gptsamples_path + 'sample_{}.txt'.format(datetime.now().strftime("%m%d_%H%M%S")), 'a') as fout:
             fout.write('ADV Sentences:\n  {}\n'.format(str(adv_sentences)))
             fout.write('Formatted Sentences:\n  {}\n'.format(str(formatted_seqgan_sentences)))
             fout.write('Reward Sentences:\n  {}\n'.format(str(reward_sentences)))
