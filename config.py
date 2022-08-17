@@ -16,7 +16,7 @@ import torch
 # ===Program===
 if_test = False
 CUDA = False
-MPS = True
+MPS = False
 multi_gpu = False
 # multi_gpu = True #Descomentar en caso de querer ejecutar en otra GPU con CUDA
 if_save = True
@@ -145,7 +145,7 @@ if CUDA and torch.cuda.is_available() and torch.cuda.device_count() > 0:
 elif MPS and torch.backends.mps.is_available():
     device = 'mps'
 else:
-    device = -1
+    device = 'cpu'
 # device=0
 # print('device: ', device)
 
@@ -160,7 +160,7 @@ else:
     devices = str(device)
     if CUDA:
         torch.cuda.set_device(device)
-    elif MPS:
+    else:
         torch.device(device)
 
 # ===Save Model and samples===
@@ -308,7 +308,7 @@ def init_param(opt):
         devices = str(device)
         if CUDA:
             torch.cuda.set_device(device)
-        elif MPS:
+        else:
             torch.device(device)
 
     # Save path
