@@ -1,6 +1,7 @@
 import os
 import config as cfg
 import numpy as np
+import re
 from math import ceil
 from utils.keywords import get_keywords
 from gensim.utils import deaccent
@@ -39,6 +40,37 @@ def cleanText(sentences, single_sentence=False, ignore_num=True):
                 if single_sentence:
                     return new_sentence
                 formatted_sentences.append(new_sentence)
+    return formatted_sentences
+
+
+def cleanTextRegex(sentences, single_sentence=False):
+    formatted_sentences = []
+    for idx, sentence in enumerate(sentences):
+        words = []
+        if sentence == '':
+            continue
+        else:
+            for sentence_decoded in [sentence.encode('utf8', 'ignore').decode('utf8')]:
+                for word in sentence_decoded.split():
+                    word = deaccent(word.lower()) #Minusculas + Acentos
+                    if word == "": #Evitar palabras vacias
+                        continue
+                    words.append(word)
+                new_sentence = "" #Reconstruccion de tweets
+                i=0
+                for word in words:
+                    if i < len(words)-1:
+                        i+=1
+                        new_sentence = new_sentence + word + " "
+                    else:
+                        new_sentence = new_sentence + word
+
+                    clean_sentence = ' '.join(re.sub(r'[^A-Za-z\s]+', '', new_sentence).split())
+
+                if single_sentence:
+                    return clean_sentence
+
+                formatted_sentences.append(clean_sentence)
     return formatted_sentences
 
 
@@ -123,20 +155,35 @@ def process_gpt_input(sentences_list, windows_size, rate):
     return formatted_seqgan_sentences
 
 
-def generate_gpt_sentences(adv_sentences, windows_size, rate):
+def generate_gpt_sentences(adv_sentences, num_sentences, windows_size, rate):
     reward_sentences = []
     tokenizer = AutoTokenizer.from_pretrained('gpt2')
     model = AutoModelForCausalLM.from_pretrained("gpt2")
     formatted_seqgan_sentences = process_gpt_input(adv_sentences, windows_size, rate)
 
     for idx, sentence in enumerate(formatted_seqgan_sentences):
+        gpt_sentence_grouping = []
         if sentence == '':
-            reward_sentences.append(sentence)
+            for i in range(num_sentences):
+                gpt_sentence_grouping.append(sentence)
         else:
             encoded_input = tokenizer(sentence, return_tensors='pt').input_ids
-            outputs = model.generate(encoded_input, do_sample=True, max_length=cfg.max_seq_len, pad_token_id=tokenizer.eos_token_id)
+            outputs = model.generate(
+                                    encoded_input,
+                                    max_length=cfg.max_seq_len,
+                                    num_return_sequences = num_sentences,
+                                    pad_token_id=tokenizer.eos_token_id,
+                                    do_sample=True,
+                                    top_k=50,
+                                    top_p=0.95,
+                                    temperature = 0.7
+                                    )
             generated_text = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-            reward_sentences.append(cleanText(generated_text, single_sentence=True)) #El input a `cleanText()` debe ser el arreglo con la oracion dentro
+
+            for gpt_sentence in generated_text:
+                gpt_sentence_grouping.append(cleanTextRegex([gpt_sentence], single_sentence=True)) #El input a `cleanText()` debe ser el arreglo con la oracion dentro
+
+        reward_sentences.append(gpt_sentence_grouping)
 
     if cfg.save_reward_samples:
         save_gptsamples_path = os.path.join(cfg.save_root + 'gpt_samples/')
@@ -148,4 +195,4 @@ def generate_gpt_sentences(adv_sentences, windows_size, rate):
             fout.write('Formatted Sentences:\n  {}\n'.format(str(formatted_seqgan_sentences)))
             fout.write('Reward Sentences:\n  {}\n'.format(str(reward_sentences)))
 
-    return reward_sentences
+    return np.transpose(reward_sentences)
