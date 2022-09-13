@@ -18,7 +18,6 @@ from utils.sentences_similarity import mc_similarity, generate_gpt_sentences
 import config as cfg
 from utils.text_process import load_dict, write_tokens, tensor_to_tokens
 
-
 class ROLLOUT:
     def __init__(self, gen, gpu=True):
         self.gen = gen
@@ -75,6 +74,7 @@ class ROLLOUT:
         with torch.no_grad():
             batch_size = sentences.size(0)
             rewards = torch.zeros([rollout_num * self.max_seq_len, batch_size]).float()
+
             if self.gpu:
                 rewards = rewards.cuda()
             idx = 0
@@ -137,10 +137,16 @@ class ROLLOUT:
 
             w2v_model = get_w2vmodel('wikidump') #TODO: que sea cfg y se cargue desde la funcion padre
 
-            for num in range(self.max_seq_len):
-                gpt_sentences = generate_gpt_sentences(adv_sentences, windows_size, rate)
+            gpt_sentences = generate_gpt_sentences(adv_sentences, rollout_num * self.max_seq_len, windows_size, rate)
+            for num, gpt_sentence_group in enumerate(gpt_sentences): # [0, max_seq_len]
                 for i in range(batch_size):
-                    rewards_np[num][i] = mc_similarity(w2v_model, adv_sentences[i], gpt_sentences[i])
+                    cosine_similarity = mc_similarity(w2v_model, adv_sentences[i], gpt_sentence_group[i])
+
+                    if cosine_similarity == 0:
+                        rewards_np[num][i] = 0
+                    else:
+                        cosine_distance = 1 - ((1 - cosine_similarity)/2) # TODO: Realizar normalizacion dentro de `mc_similarity`
+                        rewards_np[num][i] = cosine_distance
 
             rewards = torch.tensor(rewards_np, dtype=torch.float)
             if self.gpu:
