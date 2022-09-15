@@ -16,7 +16,7 @@ from embedding_models.w2v_model import get_w2vmodel
 from utils.sentences_similarity import mc_similarity, generate_gpt_sentences
 
 import config as cfg
-from utils.text_process import load_dict, write_tokens, tensor_to_tokens
+from utils.text_process import load_dict, write_tokens, tensor_to_tokens_continuous
 
 class ROLLOUT:
     def __init__(self, gen, gpu=True):
@@ -104,7 +104,7 @@ class ROLLOUT:
             rewards_np = np.zeros([rollout_num * self.max_seq_len, batch_size])
 
             adv_sentences = []
-            for array_ofwords in tensor_to_tokens(sentences, self.idx2word_dict):
+            for array_ofwords in tensor_to_tokens_continuous(sentences, self.idx2word_dict):
                   adv_sentences.append(' '.join(array_ofwords))
             w2v_model = get_w2vmodel('wikidump') #TODO: que sea cfg y se cargue desde la funcion padre
 
@@ -112,7 +112,7 @@ class ROLLOUT:
             for i in range(rollout_num):
                 for given_num in range(1, self.max_seq_len + 1):
                     samples = self.rollout_mc_search(sentences, given_num)
-                    mc_tokens = tensor_to_tokens(samples, self.idx2word_dict)
+                    mc_tokens = tensor_to_tokens_continuous(samples, self.idx2word_dict)
                     mc_sentences = []
                     for arr_of_word in mc_tokens:
                         mc_sentences.append(' '.join(arr_of_word))
@@ -136,7 +136,7 @@ class ROLLOUT:
     def get_reward_gpt_similarity(self, sentences, windows_size, rate, rollout_num=1):
 
         adv_sentences = []
-        for array_ofwords in tensor_to_tokens(sentences, self.idx2word_dict):
+        for array_ofwords in tensor_to_tokens_continuous(sentences, self.idx2word_dict):
               adv_sentences.append(' '.join(array_ofwords))
 
         with torch.no_grad():

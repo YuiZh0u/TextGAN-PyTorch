@@ -114,14 +114,15 @@ def getMatchesByWindow(sentence, keywords_list, window_size, first_encounter=Fal
     """
     sentence = sentence.split()
     matches = []
-    for i, word in enumerate(sentence):
+    for idx, word in enumerate(sentence):
         if word in keywords_list:
-            start = max(0, i-window_size)
-            # print('word={}, i={}, window_size={}, total={}'.format(word, i, window_size, i+window_size))
+            start = max(0, idx - window_size)
+            # print('word={}, idx={}, start={}, total={}'.format(word, idx, start, idx+window_size))
             if first_encounter == True:
-                return ' '.join(sentence[start:i+window_size+1])
+                matches = ' '.join(sentence[start:idx+window_size+1])
+                return matches
             else:
-                matches.append(' '.join(sentence[start:i+window_size+1]))
+                matches.append(' '.join(sentence[start:idx+window_size+1]))
 
     return matches
 
@@ -144,10 +145,13 @@ def process_gpt_input(sentences_list, windows_size, rate):
     formatted_seqgan_sentences = []
     keywords = get_keywords(cfg.dataset)
     for sentence in sentences_list:
-        if len(sentence) > 0:
-            matches = getMatchesByWindow(sentence, keywords, windows_size, True)
-            if len(matches) > 0:
-                formatted_seqgan_sentences.append(matches)
+        if len(sentence.split()) > 0:
+            if len(keywords) > 0:
+                matches = getMatchesByWindow(sentence, keywords, windows_size, True)
+                if len(matches) > 0:
+                    formatted_seqgan_sentences.append(matches)
+                else:
+                    formatted_seqgan_sentences.append(getFirstWordsFromSentence(rate, sentence))
             else:
                 formatted_seqgan_sentences.append(getFirstWordsFromSentence(rate, sentence))
         else:
@@ -156,18 +160,17 @@ def process_gpt_input(sentences_list, windows_size, rate):
 
 
 def generate_gpt_sentences(adv_sentences, num_sentences, windows_size, rate):
-    reward_sentences = []
+
+    final_gpt_sentences = []
     tokenizer = AutoTokenizer.from_pretrained('gpt2')
     model = AutoModelForCausalLM.from_pretrained("gpt2")
     formatted_seqgan_sentences = process_gpt_input(adv_sentences, windows_size, rate)
 
     for idx, sentence in enumerate(formatted_seqgan_sentences):
-        gpt_sentence_grouping = []
         if sentence == '':
-            for i in range(num_sentences):
-                gpt_sentence_grouping.append(sentence)
+            final_gpt_sentences.append([sentence for i in range(num_sentences)])
         else:
-            encoded_input = tokenizer(sentence, return_tensors='pt').input_ids
+            encoded_input = tokenizer('{} '.format(sentence), return_tensors='pt').input_ids
             outputs = model.generate(
                                     encoded_input,
                                     max_length=cfg.max_seq_len,
@@ -179,11 +182,7 @@ def generate_gpt_sentences(adv_sentences, num_sentences, windows_size, rate):
                                     temperature = 0.7
                                     )
             generated_text = tokenizer.batch_decode(outputs, skip_special_tokens=True)
-
-            for gpt_sentence in generated_text:
-                gpt_sentence_grouping.append(cleanTextRegex([gpt_sentence], single_sentence=True)) #El input a `cleanText()` debe ser el arreglo con la oracion dentro
-
-        reward_sentences.append(gpt_sentence_grouping)
+            final_gpt_sentences.append(cleanTextRegex(generated_text))
 
     if cfg.save_reward_samples:
         save_gptsamples_path = os.path.join(cfg.save_root + 'gpt_samples/')
@@ -193,6 +192,6 @@ def generate_gpt_sentences(adv_sentences, num_sentences, windows_size, rate):
         with open(save_gptsamples_path + 'sample_{}.txt'.format(datetime.now().strftime("%m%d_%H%M%S")), 'a') as fout:
             fout.write('ADV Sentences:\n  {}\n'.format(str(adv_sentences)))
             fout.write('Formatted Sentences:\n  {}\n'.format(str(formatted_seqgan_sentences)))
-            fout.write('Reward Sentences:\n  {}\n'.format(str(reward_sentences)))
+            fout.write('Reward Sentences:\n  {}\n'.format(str(final_gpt_sentences)))
 
-    return np.transpose(reward_sentences)
+    return(np.transpose(final_gpt_sentences))
