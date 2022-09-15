@@ -13,7 +13,7 @@ import torch.nn.functional as F
 
 import numpy as np
 from embedding_models.w2v_model import get_w2vmodel
-from utils.sentences_similarity import mc_similarity, generate_gpt_sentences
+from utils.sentences_similarity import mc_similarity, generate_gpt_sentences, generate_gpt_tokens
 
 import config as cfg
 from utils.text_process import load_dict, write_tokens, tensor_to_tokens_continuous
@@ -88,6 +88,38 @@ class ROLLOUT:
                     idx += 1
 
         # rewards = torch.mean(rewards, dim=0)
+        rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
+        return rewards
+
+
+    def get_reward_inD_viaGPT(self, sentences, windows_size, rate, rollout_num, dis, current_k=0):
+        """
+        get reward via GPT search and Discriminator
+        """
+
+        adv_sentences = []
+        for array_ofwords in tensor_to_tokens_continuous(sentences, self.idx2word_dict):
+              adv_sentences.append(' '.join(array_ofwords))
+
+        with torch.no_grad():
+            batch_size = sentences.size(0)
+            rewards = torch.zeros([rollout_num * self.max_seq_len, batch_size]).float()
+
+            if self.gpu:
+                rewards = rewards.cuda()
+            idx = 0
+            for i in range(rollout_num):
+                given_gpt_sentences = generate_gpt_tokens(adv_sentences, self.max_seq_len, windows_size, rate)
+                for given_num in range(self.max_seq_len):
+                    samples = given_gpt_sentences[given_num:len(given_gpt_sentences):self.max_seq_len]
+                    if self.gpu:
+                        samples = torch.tensor(samples).cuda()
+                    out = dis.forward(samples)
+                    out = F.softmax(out, dim=-1)
+                    reward = out[:, current_k + 1]
+                    rewards[idx] = reward
+                    idx += 1
+
         rewards = torch.mean(rewards.view(batch_size, self.max_seq_len, rollout_num), dim=-1)
         return rewards
 

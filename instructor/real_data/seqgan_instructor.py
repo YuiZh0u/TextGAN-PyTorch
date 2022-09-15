@@ -127,6 +127,11 @@ class SeqGANInstructor(BasicInstructor):
                 rate = float(0.3)
                 rewards = rollout_func.get_reward_gpt_similarity(target, windows_size, rate)
                 adv_loss = self.gen.batchPGLoss(inp, target, rewards)
+            elif cfg.variation_name == 'GPTDiscrim':
+                windows_size = 2
+                rate = float(0.3)
+                rewards = rollout_func.get_reward_inD_viaGPT(target, windows_size, rate, cfg.rollout_num, self.dis)
+                adv_loss = self.gen.batchPGLoss(inp, target, rewards)
             else:
                 rewards = rollout_func.get_reward(target, cfg.rollout_num, self.dis)
                 adv_loss = self.gen.batchPGLoss(inp, target, rewards)
