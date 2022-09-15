@@ -121,6 +121,19 @@ def load_test_dict(dataset):
     return word2idx_dict, idx2word_dict
 
 
+def tensor_to_tokens_continuous(tensor, dictionary):
+    """transform Tensor to word tokens ignoring padding_idx"""
+    tokens = []
+    for sent in tensor:
+        sent_token = []
+        for word in sent.tolist():
+            if word == cfg.padding_idx:
+                continue
+            sent_token.append(dictionary[str(word)])
+        tokens.append(sent_token)
+    return tokens
+
+
 def tensor_to_tokens(tensor, dictionary):
     """transform Tensor to word tokens"""
     tokens = []
