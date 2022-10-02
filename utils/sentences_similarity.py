@@ -164,7 +164,7 @@ def generate_gpt_sentences(adv_sentences, num_sentences, windows_size, rate):
 
     final_gpt_sentences = []
     tokenizer = AutoTokenizer.from_pretrained('gpt2')
-    model = AutoModelForCausalLM.from_pretrained("gpt2")
+    model = AutoModelForCausalLM.from_pretrained('gpt2')
     formatted_seqgan_sentences = process_gpt_input(adv_sentences, windows_size, rate)
 
     for idx, sentence in enumerate(formatted_seqgan_sentences):
@@ -200,16 +200,16 @@ def generate_gpt_sentences(adv_sentences, num_sentences, windows_size, rate):
 
 def generate_gpt_tokens(adv_sentences, num_sentences, windows_size, rate):
 
-    word2idx_dict, idx2word_dict = load_dict('covid_tweets')
+    word2idx_dict, idx2word_dict = load_dict(cfg.dataset)
     final_gpt_tokens = []
     tokenizer = AutoTokenizer.from_pretrained('gpt2')
-    model = AutoModelForCausalLM.from_pretrained("gpt2")
+    model = AutoModelForCausalLM.from_pretrained('gpt2')
     formatted_seqgan_sentences = process_gpt_input(adv_sentences, windows_size, rate)
 
     for idx, sentence in enumerate(formatted_seqgan_sentences):
         if sentence == '':
             for i in range(num_sentences): #En caso de que las sentencias vacias se rellenan con 0s
-                 final_gpt_tokens.append([0]*cfg.max_seq_len)
+                final_gpt_tokens.append([0]*cfg.max_seq_len)
         else:
             encoded_input = tokenizer('{} '.format(sentence), return_tensors='pt').input_ids
             outputs = model.generate(
